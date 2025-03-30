@@ -24,10 +24,22 @@ const userSchema = new mongoose.Schema(
             specialization: {
                 type: String
             },
+            yearsOfExperience: {
+                type: Number,
+                min: 0
+            },
+            clinicAddress: {
+                type: String
+            },
+            consultationFee: {
+                type: Number,
+                min: 0
+            },
             availability: [
                 {
                     day: String,  //"Monday"
-                    slots: [String]  //["10:00 AM", "11:00 AM"]
+                    startTime: String,  // "09:00 AM"
+                    endTime: String,  // "05:00 PM"
                 }
             ]
         },
