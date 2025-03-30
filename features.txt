@@ -1,0 +1,9 @@
+Basic Features for AppointEase
+
+1️⃣ User Authentication – Patients & doctors can register and log in.
+2️⃣ Doctor Profiles – Show specialization & availability.
+3️⃣ Availability Management – Doctors can set & update their working hours and time slots.
+4️⃣ Appointment Booking – Patients can select a doctor, date, and time.
+5️⃣ Rescheduling & Cancellation – Patients can modify or cancel bookings.
+6️⃣ Email Notifications – Confirmation, rescheduling, and reminders (via Nodemailer).
+7️⃣ Doctor Dashboard – View upcoming appointments & manage availability.
