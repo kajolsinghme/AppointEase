@@ -81,14 +81,46 @@ export const getAllDoctors = async (req, res) => {
         .json({ success: false, message: "No doctors found" });
     }
 
-    return res.status(200).json({ success: true, message: "List of all doctors fetched successfully", data: doctors });
-  } catch (error) {
     return res
-      .status(500)
+      .status(200)
       .json({
-        success: false,
-        message: "Internal Server Error",
-        error: error.message,
+        success: true,
+        message: "List of all doctors fetched successfully",
+        data: doctors,
       });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+      error: error.message,
+    });
+  }
+};
+
+export const getDoctorById = async (req, res) => {
+  try {
+    const doctorId = req.params.id;
+
+    const doctor = await User.findOne({ _id: doctorId, role: "doctor" })
+
+    if (!doctor) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Doctor not found" });
+    }
+
+    return res
+      .status(200)
+      .json({
+        success: true,
+        message: "Doctor details fetched successfully",
+        data: doctor,
+      });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+      error: error.message,
+    });
   }
 };

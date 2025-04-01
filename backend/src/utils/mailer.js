@@ -1,0 +1,43 @@
+import nodemailer from "nodemailer";
+import {patientAppointmentTemplate, doctorAppointmentTemplate}  from "../utils/emailTemplates.js"
+import dotenv from "dotenv";
+
+dotenv.config();
+
+const transporter = nodemailer.createTransport({
+    service: 'gmail', 
+    auth: {
+      user: process.env.EMAIL_USER,
+      pass: process.env.EMAIL_PASS,
+    },
+  });
+
+export const sendAppointmentConfirmation = async(patientEmail, doctorEmail, appointmentDetails) => {
+    try{
+        const mailOptionsForPatient = {
+            from: process.env.EMAIL_USER,
+            to: patientEmail,
+            subject: "Appointment Confirmation",
+            html: patientAppointmentTemplate(appointmentDetails.patientName, appointmentDetails.doctorName, appointmentDetails.scheduledAt, appointmentDetails.type, appointmentDetails.location)
+        }
+
+        const mailOptionsForDoctor = {
+            from: process.env.EMAIL_USER,
+            to: doctorEmail,
+            subject: "New Appointment Booked",
+            html: doctorAppointmentTemplate(appointmentDetails.doctorName, appointmentDetails.patientName, appointmentDetails.scheduledAt, appointmentDetails.type, appointmentDetails.location)
+        }
+
+        console.log('EMAIL_USER:', process.env.EMAIL_USER);
+        console.log('EMAIL_PASS:', process.env.EMAIL_PASS);
+
+        console.log ("transporter", transporter)
+        await transporter.sendMail(mailOptionsForPatient)
+        await transporter.sendMail(mailOptionsForDoctor)
+
+        console.log("Emails sent successfully to patient and doctor")
+    }
+    catch(error){
+        console.error("Error sending emails:", error)
+    }
+}

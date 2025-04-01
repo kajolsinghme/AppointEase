@@ -4,8 +4,7 @@ import connectDB from "./config/db.js";
 import cors from "cors";
 import authRoutes from "./routes/authRoutes.js"
 import userRoutes from "./routes/userRoutes.js"
-// import doctorRoutes from "./routes/doctorRoutes.js"
-// import appointmentRoutes from "./routes/appointmentRoutes.js";
+import appointmentRoutes from "./routes/appointmentRoutes.js";
 
 dotenv.config();
 connectDB();
@@ -17,7 +16,6 @@ app.use(express.json())
 // Define routes
 app.use("/api/auth", authRoutes); 
 app.use("/api/user", userRoutes);
-// app.use("/api/doctors", doctorRoutes);
-// app.use("/api/appointments", appointmentRoutes);
+app.use("/api/appointments", appointmentRoutes)
 
 export default app;
