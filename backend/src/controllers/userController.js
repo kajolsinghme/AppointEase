@@ -99,7 +99,7 @@ export const getAllDoctors = async (req, res) => {
 
 export const getDoctorById = async (req, res) => {
   try {
-    const doctorId = req.params.id;
+    const doctorId = req.params;
 
     const doctor = await User.findOne({ _id: doctorId, role: "doctor" })
 

@@ -8,6 +8,6 @@ const router = express.Router()
 router.get("/profile", validateAuthenticationMiddleware, getProfile);
 router.patch("/profile", validateAuthenticationMiddleware, validateUpdateProfileMiddleware, updateProfile);
 router.get("/doctors", validateAuthenticationMiddleware, getAllDoctors);
-router.get("/doctors/:id", validateAuthenticationMiddleware, getDoctorById); 
+router.get("/doctors/:doctorId", validateAuthenticationMiddleware, getDoctorById); 
 
 export default router;

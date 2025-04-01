@@ -28,10 +28,6 @@ export const sendAppointmentConfirmation = async(patientEmail, doctorEmail, appo
             html: doctorAppointmentTemplate(appointmentDetails.doctorName, appointmentDetails.patientName, appointmentDetails.scheduledAt, appointmentDetails.type, appointmentDetails.location)
         }
 
-        console.log('EMAIL_USER:', process.env.EMAIL_USER);
-        console.log('EMAIL_PASS:', process.env.EMAIL_PASS);
-
-        console.log ("transporter", transporter)
         await transporter.sendMail(mailOptionsForPatient)
         await transporter.sendMail(mailOptionsForDoctor)
 

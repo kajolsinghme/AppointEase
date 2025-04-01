@@ -38,24 +38,28 @@ export const bookAppointment = async (req, res) => {
 
     await appointment.save();
 
-    console.log(doctor.doctorDetails)
-
     // Appointment details for email
     const appointmentDetails = {
       patientName: patient.name,
       doctorName: doctor.name,
       scheduledAt: new Date(scheduledAt).toLocaleString(),
-      location: doctor.doctorDetails ? doctor.doctorDetails.clinicAddress : "Not Available",
-      type
-    }
+      location: doctor.doctorDetails
+        ? doctor.doctorDetails.clinicAddress
+        : "Not Available",
+      type,
+    };
 
     // Send confirmation emails to both the patient and the doctor
-    await sendAppointmentConfirmation(patient.email, doctor.email, appointmentDetails)
+    await sendAppointmentConfirmation(
+      patient.email,
+      doctor.email,
+      appointmentDetails
+    );
 
     return res.status(200).json({
       success: true,
       message: "Appointment booked successfully, confirmation emails sent",
-      data: {id: appointment._id},
+      data: { id: appointment._id },
     });
   } catch (error) {
     return res.status(500).json({
@@ -66,3 +70,95 @@ export const bookAppointment = async (req, res) => {
   }
 };
 
+export const rescheduleAppointment = async (req, res) => {
+  try {
+    const { appointmentId } = req.params;
+    const { rescheduledAt } = req.body;
+
+    const appointment = await Appointment.findById(appointmentId);
+    if (!appointment) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Appointment not found" });
+    }
+
+    if (req.user.id !== appointment.patientId.toLocaleString()) {
+      return res.status(403).json({
+        success: false,
+        message: "Unauthorized to reschedule this appointment",
+      });
+    }
+
+    if(appointment.status !== "booked"){
+      return res.status(400).json({
+        success: false,
+        message: "Cannot reschedule an appointment that is already completed or cancelled",
+      });
+    }
+
+    const isSlotTaken = await Appointment.findOne({
+      doctorId: appointment.doctorId,
+      scheduledAt: rescheduledAt,
+    });
+    if (isSlotTaken) {
+      return res.status(400).json({
+        success: false,
+        message: "Selected time slot is already booked",
+      });
+    }
+
+    appointment.scheduledAt = rescheduledAt;
+
+    await appointment.save();
+
+    return res
+      .status(200)
+      .json({ success: true, message: "Appointment rescheduled successfully" });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+      error: error.message,
+    });
+  }
+};
+
+export const cancelAppointment = async (req, res) => {
+  try {
+    const { appointmentId } = req.params;
+
+    const appointment = await Appointment.findById(appointmentId);
+    if (!appointment) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Appointment not found" });
+    }
+
+    if (req.user.id !== appointment.patientId.toLocaleString()) {
+      return res.status(403).json({
+        success: false,
+        message: "Unauthorized to cancel this appointment",
+      });
+    }
+
+    if(appointment.status !== "booked"){
+      return res.status(400).json({
+        success: false,
+        message: "Cannot cancel an appointment that is already completed or cancelled",
+      });
+    }
+    appointment.status = "cancelled";
+
+    await appointment.save();
+
+    return res
+      .status(200)
+      .json({ success: true, message: "Appointment cancelled successfully" });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+      error: error.message,
+    });
+  }
+};
