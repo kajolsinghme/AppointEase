@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import { USER_TYPE } from "../constants/enums.js";
 
 const userSchema = new mongoose.Schema(
   {
@@ -17,7 +18,7 @@ const userSchema = new mongoose.Schema(
     },
     role: {
       type: String,
-      enum: ["patient", "doctor"],
+      enum: [USER_TYPE.DOCTOR, USER_TYPE.PATIENT],
       required: true,
     },
     doctorDetails: {

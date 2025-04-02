@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import { APPOINTMENT_STATUS, APPOINTMENT_TYPE } from "../constants/enums";
 
 const appointmentSchema = mongoose.Schema(
   {
@@ -18,13 +19,13 @@ const appointmentSchema = mongoose.Schema(
     },
     type: {
       type: String,
-      enum: ["in-person", "video-consultation"],
+      enum: [APPOINTMENT_TYPE.IN_PERSON, APPOINTMENT_TYPE.VIDEO_CONSULTATION],
       required: true,
     },
     status: {
       type: String,
-      enum: ["booked", "completed", "cancelled"],
-      default: "booked",
+      enum: [APPOINTMENT_STATUS.BOOKED, APPOINTMENT_STATUS.CANCELLED],
+      default: APPOINTMENT_STATUS.BOOKED,
     },
     zoomLink: { 
       type: String, 

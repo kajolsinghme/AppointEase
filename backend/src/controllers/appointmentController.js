@@ -1,7 +1,8 @@
+import { APPOINTMENT_STATUS } from "../constants/enums.js";
 import Appointment from "../models/Appointment.js";
 import User from "../models/User.js";
-import { sendAppointmentConfirmation } from "../utils/mailer.js";
-import {createZoomMeeting} from "../utils/zoomService.js"
+import { sendAppointmentConfirmation } from "../utils/email/mailer.js";
+import {createZoomMeeting} from "../utils/zoom/zoomService.js"
 import dotenv from "dotenv";
 
 dotenv.config();
@@ -43,7 +44,6 @@ export const bookAppointment = async (req, res) => {
       doctorId,
       scheduledAt,
       type,
-      status: "booked",
       zoomLink
     });
 
@@ -101,7 +101,7 @@ export const rescheduleAppointment = async (req, res) => {
       });
     }
 
-    if(appointment.status !== "booked"){
+    if(appointment.status !== APPOINTMENT_STATUS.BOOKED){
       return res.status(400).json({
         success: false,
         message: "Cannot reschedule an appointment that is already completed or cancelled",
@@ -153,7 +153,7 @@ export const cancelAppointment = async (req, res) => {
       });
     }
 
-    if(appointment.status !== "booked"){
+    if(appointment.status !== APPOINTMENT_STATUS.BOOKED){
       return res.status(400).json({
         success: false,
         message: "Cannot cancel an appointment that is already completed or cancelled",

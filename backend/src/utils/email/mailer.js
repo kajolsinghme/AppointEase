@@ -1,5 +1,5 @@
 import nodemailer from "nodemailer";
-import {patientAppointmentTemplate, doctorAppointmentTemplate}  from "../utils/emailTemplates.js"
+import {patientAppointmentTemplate, doctorAppointmentTemplate}  from "./emailTemplates.js"
 import dotenv from "dotenv";
 
 dotenv.config();
