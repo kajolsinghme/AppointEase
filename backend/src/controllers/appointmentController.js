@@ -1,6 +1,10 @@
 import Appointment from "../models/Appointment.js";
 import User from "../models/User.js";
 import { sendAppointmentConfirmation } from "../utils/mailer.js";
+import {createZoomMeeting} from "../utils/zoomService.js"
+import dotenv from "dotenv";
+
+dotenv.config();
 
 export const bookAppointment = async (req, res) => {
   try {
@@ -28,12 +32,19 @@ export const bookAppointment = async (req, res) => {
       });
     }
 
+    let zoomLink = null;
+
+    if (type === "video-consultation") {
+      zoomLink = await createZoomMeeting(process.env.EMAIL_USER, "Appointment with Patient", scheduledAt)
+    }
+
     const appointment = new Appointment({
       patientId,
       doctorId,
       scheduledAt,
       type,
       status: "booked",
+      zoomLink
     });
 
     await appointment.save();
@@ -43,10 +54,11 @@ export const bookAppointment = async (req, res) => {
       patientName: patient.name,
       doctorName: doctor.name,
       scheduledAt: new Date(scheduledAt).toLocaleString(),
-      location: doctor.doctorDetails
-        ? doctor.doctorDetails.clinicAddress
-        : "Not Available",
       type,
+      location: (type === "in-person" && doctor.doctorDetails.clinicAddress)
+        ? doctor.doctorDetails.clinicAddress
+        : null,
+      zoomLink
     };
 
     // Send confirmation emails to both the patient and the doctor

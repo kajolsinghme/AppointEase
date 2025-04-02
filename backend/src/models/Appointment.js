@@ -26,6 +26,10 @@ const appointmentSchema = mongoose.Schema(
       enum: ["booked", "completed", "cancelled"],
       default: "booked",
     },
+    zoomLink: { 
+      type: String, 
+      default: null 
+    },
   },
   { timestamps: true }
 );

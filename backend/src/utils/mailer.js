@@ -18,14 +18,14 @@ export const sendAppointmentConfirmation = async(patientEmail, doctorEmail, appo
             from: process.env.EMAIL_USER,
             to: patientEmail,
             subject: "Appointment Confirmation",
-            html: patientAppointmentTemplate(appointmentDetails.patientName, appointmentDetails.doctorName, appointmentDetails.scheduledAt, appointmentDetails.type, appointmentDetails.location)
+            html: patientAppointmentTemplate(appointmentDetails)
         }
 
         const mailOptionsForDoctor = {
             from: process.env.EMAIL_USER,
             to: doctorEmail,
-            subject: "New Appointment Booked",
-            html: doctorAppointmentTemplate(appointmentDetails.doctorName, appointmentDetails.patientName, appointmentDetails.scheduledAt, appointmentDetails.type, appointmentDetails.location)
+            subject: "New Appointment Scheduled",
+            html: doctorAppointmentTemplate(appointmentDetails)
         }
 
         await transporter.sendMail(mailOptionsForPatient)
