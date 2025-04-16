@@ -17,16 +17,36 @@ const Navbar = () => {
       <div>
         <ul className="flex space-x-4 font-medium text-xl">
           <li>
-            <a href="/" className="hover:text-purple-700 transition duration-300">Home</a>
+            <a
+              href="/"
+              className="hover:text-purple-700 transition duration-300"
+            >
+              Home
+            </a>
           </li>
           <li>
-            <a href="/" className="hover:text-purple-700 transition duration-300">Services</a>
+            <a
+              href="#health-concerns"
+              className="hover:text-purple-700 transition duration-300"
+            >
+              Health Concerns
+            </a>
           </li>
           <li>
-            <a href="/" className="hover:text-purple-700 transition duration-300">Find a Doctor</a>
+            <a
+              href="#find-doctor"
+              className="hover:text-purple-700 transition duration-300"
+            >
+              Find a Doctor
+            </a>
           </li>
           <li>
-            <a href="/" className="hover:text-purple-700 transition duration-300">About</a>
+            <a
+              href="#about"
+              className="hover:text-purple-700 transition duration-300"
+            >
+              About
+            </a>
           </li>
         </ul>
       </div>

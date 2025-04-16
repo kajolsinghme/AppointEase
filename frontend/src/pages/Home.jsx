@@ -5,6 +5,8 @@ import Footer from '../components/Footer/Footer'
 import SearchBar from '../components/SearchBar/SearchBar'
 import FeaturesSection from '../components/Features/FeaturesSection'
 import DoctorsSection from '../components/DoctorsSection/DoctorsSection'
+import HealthConcerns from '../components/HealthConcerns/HealthConcerns'
+import FAQSection from '../components/FAQSection/FAQSection'
 
 const Home = () => {
   return (
@@ -12,8 +14,10 @@ const Home = () => {
         <Navbar/>
         <HeroSection/>
         <SearchBar/>
-        <FeaturesSection/>
         <DoctorsSection/>
+        <FeaturesSection/>
+        <HealthConcerns/>
+        <FAQSection/>
         <Footer/>
     </div>
   )

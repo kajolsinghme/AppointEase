@@ -3,7 +3,7 @@ import SearchIcon from "../../assets/magnifying-glass-search-white-icon.png";
 
 const SearchBar = () => {
   return (
-    <div className="w-full bg-white py-10 flex justify-center">
+    <div id="find-doctor" className=" scroll-mt-20 w-full bg-white py-10 flex justify-center">
       <div className="w-full max-w-2xl h-14 flex items-center justify-between space-x-2 px-4 rounded-lg border border-gray-400">
         <input
           type="text"
