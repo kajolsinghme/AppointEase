@@ -31,7 +31,7 @@ const FAQSection = () => {
   };
 
   return (
-    <div className="py-16 px-4 md:px-16 bg-gray-50">
+    <div id="faq" className=" scroll-mt-16 py-16 px-4 md:px-16 bg-gray-50">
       <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-start gap-10">
         <div className="w-full md:w-1/2 flex justify-center md:sticky top-16">
           <img

@@ -7,6 +7,7 @@ import FeaturesSection from '../components/Features/FeaturesSection'
 import DoctorsSection from '../components/DoctorsSection/DoctorsSection'
 import HealthConcerns from '../components/HealthConcerns/HealthConcerns'
 import FAQSection from '../components/FAQSection/FAQSection'
+import Testimonials from '../components/Testimonials/Testimonials'
 
 const Home = () => {
   return (
@@ -18,6 +19,7 @@ const Home = () => {
         <FeaturesSection/>
         <HealthConcerns/>
         <FAQSection/>
+        <Testimonials/>
         <Footer/>
     </div>
   )

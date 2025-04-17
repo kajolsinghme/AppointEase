@@ -25,7 +25,7 @@ const healthConditions = [
 
 const HealthConcerns = () => {
   return (
-    <div id="health-concerns" className="py-16 bg-white">
+    <div id="health-concerns" className="scroll-mt-16 py-16 bg-white">
       <h2 className="flex justify-center items-center space-x-2 text-4xl font-bold text-center text-purple-800 mb-5">
             <img src={SearchIcon} alt="Search Icon" className="w-11 h-10 " />
             <span>Find Doctors by Health Concern</span>
