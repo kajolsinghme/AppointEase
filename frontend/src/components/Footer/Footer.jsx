@@ -38,9 +38,23 @@ const Footer = () => {
         <div>
           <h3 className="text-lg font-semibold mb-2">Contact Us</h3>
           <p className="text-sm text-gray-300">
-            Email: support@appointease.com
+            Email:
+            <a
+              href="mailto:support@appointease.com"
+              className="text-white underline hover:text-purple-300 ml-1"
+            >
+              support@appointease.com
+            </a>
           </p>
-          <p className="text-sm text-gray-300 mt-1">Phone: +91 98765 43210</p>
+          <p className="text-sm text-gray-300 mt-1">
+            Phone:
+            <a
+              href="tel:+919876543210"
+              className="text-white underline hover:text-purple-300 ml-1"
+            >
+              +91 98765 43210
+            </a>
+          </p>
         </div>
       </div>
       <div className="mt-10 text-center text-sm text-gray-200 border-t border-purple-800 pt-4">
