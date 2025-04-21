@@ -1,40 +1,124 @@
 import React from "react";
 import Navbar from "../components/Navbar/Navbar";
 import Footer from "../components/Footer/Footer";
+import BagIcon from "../assets/bag-icon.png";
+import RupeesIcon from "../assets/money-bag-rupee-icon.png";
+import LocationIcon from "../assets/location-icon.png";
+import { useLocation } from "react-router-dom";
 
 const doctors = [
-  {
-    name: "Dr. Sarah Johnson",
-    specialty: "Cardiologist",
-    experience: "15 years",
-    fees: "$100 per visit",
-    location: "Manhattan, NY",
-    image: "https://via.placeholder.com/64",
-  },
   {
     name: "Dr. Michael Chen",
     specialty: "Neurologist",
     experience: "10 years",
-    fees: "$150 per visit",
+    fees: "300 per visit",
     location: "Brooklyn, NY",
-    image: "https://via.placeholder.com/64",
+    illnesses: ["Headache", "Migraine", "Seizures"],
+    availability: [
+      { day: "Tuesday", startTime: "09:00 AM", endTime: "05:00 PM" },
+      { day: "Wednesday", startTime: "09:00 AM", endTime: "05:00 PM" },
+    ],
+    image: "https://randomuser.me/api/portraits/men/49.jpg",
   },
   {
-    name: "Dr. Emily Wilson",
+    name: "Dr. Sarah Johnson",
+    specialty: "Cardiologist",
+    experience: "15 years",
+    fees: "500 per visit",
+    location: "Manhattan, NY",
+    illnesses: ["Heart Pain", "High Blood Pressure", "Arrhythmia"],
+    availability: [
+      { day: "Monday", startTime: "10:00 AM", endTime: "04:00 PM" },
+      { day: "Tuesday", startTime: "10:00 AM", endTime: "04:00 PM" },
+    ],
+    image: "https://randomuser.me/api/portraits/women/76.jpg",
+  },
+  {
+    name: "Dr. Jacob Wilson",
     specialty: "Dermatologist",
     experience: "8 years",
-    fees: "$120 per visit",
+    fees: "600 per visit",
     location: "Queens, NY",
-    image: "https://via.placeholder.com/64",
+    illnesses: ["Skin Rash", "Acne", "Eczema"],
+    availability: [
+      { day: "Monday", startTime: "08:00 AM", endTime: "03:00 PM" },
+      { day: "Thursday", startTime: "11:00 AM", endTime: "06:00 PM" },
+    ],
+    image: "https://randomuser.me/api/portraits/men/94.jpg",
+  },
+  {
+    name: "Dr. Emily Carter",
+    specialty: "Pediatrician",
+    experience: "12 years",
+    fees: "400 per visit",
+    location: "Bronx, NY",
+    illnesses: ["Cold", "Fever", "Skin Rash"],
+    availability: [
+      { day: "Tuesday", startTime: "09:30 AM", endTime: "05:30 PM" },
+      { day: "Friday", startTime: "09:30 AM", endTime: "05:30 PM" },
+    ],
+    image: "https://randomuser.me/api/portraits/women/65.jpg",
+  },
+  {
+    name: "Dr. David Lee",
+    specialty: "Orthopedic Surgeon",
+    experience: "20 years",
+    fees: "800 per visit",
+    location: "Staten Island, NY",
+    illnesses: ["Joint Pain", "Fractures", "Arthritis"],
+    availability: [
+      { day: "Wednesday", startTime: "08:00 AM", endTime: "02:00 PM" },
+      { day: "Saturday", startTime: "09:00 AM", endTime: "01:00 PM" },
+    ],
+    image: "https://randomuser.me/api/portraits/men/22.jpg",
+  },
+  {
+    name: "Dr. Olivia Smith",
+    specialty: "Psychiatrist",
+    experience: "9 years",
+    fees: "500 per visit",
+    location: "Harlem, NY",
+    illnesses: ["Anxiety", "Depression", "Insomnia"],
+    availability: [
+      { day: "Thursday", startTime: "12:00 PM", endTime: "06:00 PM" },
+      { day: "Friday", startTime: "12:00 PM", endTime: "06:00 PM" },
+    ],
+    image: "https://randomuser.me/api/portraits/women/44.jpg",
   },
 ];
+
+const getNextAvailableDay = (availability) => {
+  const weekdays = [
+    "Sunday",
+    "Monday",
+    "Tuesday",
+    "Wednesday",
+    "Thursday",
+    "Friday",
+    "Saturday",
+  ];
+  const todayIdx = new Date().getDay();
+
+  for (let i = 0; i < 7; i++) {
+    const dayIdx = (todayIdx + i) % 7;
+    const dayName = weekdays[dayIdx];
+    const isAvailable = availability.some((slot) => slot.day === dayName);
+
+    if (isAvailable) {
+      if (i === 0) return "Available Today";
+      if (i === 1) return "Available Tomorrow";
+      return `Available on ${dayName}`;
+    }
+  }
+  return "Not Available in the next 7 days";
+};
 
 const ExploreDoctors = () => {
   return (
     <>
       <Navbar />
       <div className="bg-gray-100 min-h-screen py-10 px-20">
-        <div className="mx-auto">
+        <div>
           {/* Search */}
           <input
             type="text"
@@ -111,6 +195,57 @@ const ExploreDoctors = () => {
                 </div>
               </div>
             </div>
+          </div>
+          <div className="w-5/6 mx-auto grid grid-cols-1 md:grid-cols-3 gap-x-3 gap-y-12 mt-8">
+            {doctors.map((doctor) => (
+              <div className="bg-white rounded-lg px-4 -900 w-[350px] py-4 shadow-2xl">
+                <div className="flex gap-5 ">
+                  <img
+                    src={doctor.image}
+                    alt="doctor-image"
+                    className="w-24 h-auto rounded-full shadow-lg"
+                  />
+                  <div className="my-auto">
+                    <h1 className="text-lg font-bold">{doctor.name}</h1>
+                    <p className="text-gray-700 font-semibold mt-1">
+                      {doctor.specialty}
+                    </p>
+                    <p
+                      className={
+                        getNextAvailableDay(doctor.availability) ===
+                        "Available Today"
+                          ? "text-green-600 font-semibold mt-2"
+                          : "text-gray-500 font-semibold mt-2"
+                      }
+                    >
+                      {getNextAvailableDay(doctor.availability)}
+                    </p>
+                  </div>
+                </div>
+                <div className="p-4 my-2 font-bold space-y-2">
+                  <div className="flex gap-x-2 space-y-1 ">
+                    <img src={BagIcon} alt="" className="w-7 h-auto" />
+                    <p className="">{doctor.experience} experience</p>
+                  </div>
+                  <div className="flex gap-x-2 space-y-1">
+                    <img src={RupeesIcon} alt="" className="w-7 h-auto" />
+                    <p>{doctor.fees}</p>
+                  </div>
+                  <div className="flex gap-x-2 space-y-1">
+                    <img src={LocationIcon} alt="" className="w-7 h-auto" />
+                    <p>{doctor.location}</p>
+                  </div>
+                </div>
+                <div className="flex justify-between ">
+                  <button className="bg-purple-600 hover:bg-purple-800 text-white font-bold text-lg py-2 px-7 rounded-lg">
+                    Book Now
+                  </button>
+                  <button className="bg-white hover:bg-gray-100 text-purple-600 border border-gray-500 text-lg font-bold py-2 px-7 rounded-lg">
+                    View Profile
+                  </button>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </div>
