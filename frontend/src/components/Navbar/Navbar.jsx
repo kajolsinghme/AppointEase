@@ -42,7 +42,7 @@ const Navbar = () => {
           </li>
           <li>
             <a
-              href="#about"
+              href="/about"
               className="hover:text-purple-700 transition duration-300"
             >
               About

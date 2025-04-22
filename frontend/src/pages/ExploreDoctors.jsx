@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import Navbar from "../components/Navbar/Navbar";
 import Footer from "../components/Footer/Footer";
 import BagIcon from "../assets/bag-icon.png";
@@ -114,6 +114,11 @@ const getNextAvailableDay = (availability) => {
 };
 
 const ExploreDoctors = () => {
+  const location = useLocation();
+  const params = URLSearchParams(location.search)
+  const initialQuery = params.get("query") || ""
+  const [query, setQuery] = useState("");
+
   return (
     <>
       <Navbar />
