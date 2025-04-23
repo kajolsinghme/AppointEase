@@ -1,10 +1,10 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import Navbar from "../components/Navbar/Navbar";
 import Footer from "../components/Footer/Footer";
 import BagIcon from "../assets/bag-icon.png";
 import RupeesIcon from "../assets/money-bag-rupee-icon.png";
 import LocationIcon from "../assets/location-icon.png";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 const doctors = [
   {
@@ -87,6 +87,7 @@ const doctors = [
   },
 ];
 
+// Helper function to get next available day
 const getNextAvailableDay = (availability) => {
   const weekdays = [
     "Sunday",
@@ -113,101 +114,213 @@ const getNextAvailableDay = (availability) => {
   return "Not Available in the next 7 days";
 };
 
+const allLocations = [...new Set(doctors.map((d) => d.location))];
+const allIllnesses = [...new Set(doctors.flatMap((d) => d.illnesses))];
+
 const ExploreDoctors = () => {
   const location = useLocation();
-  const params = URLSearchParams(location.search)
-  const initialQuery = params.get("query") || ""
-  const [query, setQuery] = useState("");
+  const navigate = useNavigate();
+
+  // Get initial query from URL
+  const params = new URLSearchParams(location.search);
+  const initialQuery = params.get("query") || "";
+
+  const [query, setQuery] = useState(initialQuery);
+  const [locationFilter, setLocationFilter] = useState("");
+  const [illnessFilter, setIllnessFilter] = useState("");
+  const [experienceFilter, setExperienceFilter] = useState("");
+  const [feesFilter, setFeesFilter] = useState("");
+  const [availabilityFilter, setAvailabilityFilter] = useState("");
+
+  const filteredDoctors = useMemo(() => {
+    return doctors.filter((doctor) => {
+      // Search by name, specialty, or illnesses
+      const lowerQuery = query.toLowerCase();
+      const matchesQuery =
+        !lowerQuery ||
+        doctor.name.toLowerCase().includes(lowerQuery) ||
+        doctor.specialty.toLowerCase().includes(lowerQuery) ||
+        doctor.illnesses.some((ill) => ill.toLowerCase().includes(lowerQuery));
+
+      // Location Filter
+      const matchesLocation =
+        !locationFilter || doctor.location === locationFilter;
+
+      // Illness filter
+      const matchesIllness =
+        !illnessFilter || doctor.illnesses.includes(illnessFilter);
+
+      // Experience filter
+      const years = parseInt(doctor.experience);
+      let matchesExperience = true;
+      if (experienceFilter === "5+") matchesExperience = years >= 5;
+      if (experienceFilter === "10+") matchesExperience = years >= 10;
+      if (experienceFilter === "15+") matchesExperience = years >= 15;
+
+      // Fees filter
+      const fees = parseInt(doctor.fees);
+      let matchesFees = true;
+      if (feesFilter === "under300") matchesFees = fees < 300;
+      if (feesFilter === "300-500") matchesFees = fees >= 300 && fees <= 500;
+      if (feesFilter === "over500") matchesFees = fees > 500;
+
+      // Availability filter
+      let matchesAvailability = true;
+      if (availabilityFilter) {
+        const weekdays = [
+          "Sunday",
+          "Monday",
+          "Tuesday",
+          "Wednesday",
+          "Thursday",
+          "Friday",
+          "Saturday",
+        ];
+        const todayIdx = new Date().getDay();
+        const today = weekdays[todayIdx];
+        const tomorrow = weekdays[(todayIdx + 1) % 7];
+
+        if (availabilityFilter === "Available Today") {
+          matchesAvailability = doctor.availability.some(
+            (slot) => slot.day === today
+          );
+        } else if (availabilityFilter === "Available Tomorrow") {
+          matchesAvailability = doctor.availability.some(
+            (slot) => slot.day === tomorrow
+          );
+        } else if (availabilityFilter === "Available in next 7 days") {
+          matchesAvailability = doctor.availability.length > 0;
+        } else {
+          matchesAvailability = true;
+        }
+      }
+
+      return (
+        matchesQuery &&
+        matchesLocation &&
+        matchesIllness &&
+        matchesExperience &&
+        matchesFees &&
+        matchesAvailability
+      );
+    });
+  }, [
+    query,
+    locationFilter,
+    illnessFilter,
+    experienceFilter,
+    feesFilter,
+    availabilityFilter,
+  ]);
+
+  const handleSearch = (e) => {
+    setQuery(e.target.value);
+    navigate(`/explore-doctors?query=${encodeURIComponent(e.target.value)}`);
+  };
 
   return (
     <>
       <Navbar />
-      <div className="bg-gray-100 min-h-screen py-10 px-20">
+      <div className="bg-gray-100 min-h-screen py-10 px-4 md:px-20">
         <div>
           {/* Search */}
           <input
             type="text"
             placeholder="Search doctors or specialties..."
-            className="w-10/12 ml-28 shadow-lg p-4 border border-gray-300 font-bold rounded-2xl mb-6 focus:outline-none focus:ring-2 focus:ring-[#A020F0]"
+            className="w-full md:w-10/12 ml-0 md:ml-28 shadow-lg p-4 border border-gray-300 font-bold rounded-2xl mb-6 focus:outline-none focus:ring-2 focus:ring-[#A020F0]"
+            value={query}
+            onChange={handleSearch}
           />
 
           <div className="py-3 flex justify-center">
-            <div className="w-full max-w-6xl flex justify-center">
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-8">
-                {/* Location */}
-                <div className="flex flex-col gap-y-2 bg-white py-3 px-7 rounded-2xl shadow-lg">
-                  <span className="font-bold">Location</span>
-                  <select className="border p-3 border-gray-300 rounded-xl text-gray-700 font-semibold focus:outline-none focus:ring-2 focus:ring-[#A020F0]">
-                    <option value="" disabled>
-                      All Location
-                    </option>
-                    <option>Gurgaon</option>
-                    <option>Delhi</option>
-                    <option>Noida</option>
-                  </select>
-                </div>
-
-                {/* Illness */}
-                <div className="flex flex-col gap-y-3 bg-white p-3 rounded-2xl shadow-lg">
-                  <span className="font-bold">Illness</span>
-                  <select className="border p-3 border-gray-300 rounded-xl text-gray-700 font-semibold focus:outline-none focus:ring-2 focus:ring-[#A020F0]">
-                    <option value="" disabled>
-                      All Types
-                    </option>
-                    <option>Heart Pain</option>
-                    <option>Skin Rash</option>
-                    <option>Headache</option>
-                  </select>
-                </div>
-
-                {/* Experience */}
-                <div className="flex flex-col gap-y-3 bg-white p-3 rounded-2xl shadow-lg">
-                  <span className="font-bold">Experience</span>
-                  <select className="border p-3 border-gray-300 rounded-xl text-gray-700 font-semibold focus:outline-none focus:ring-2 focus:ring-[#A020F0]">
-                    <option value="" disabled>
-                      Any Experience
-                    </option>
-                    <option value="5+">5+ years</option>
-                    <option value="10+">10+ years</option>
-                    <option value="15+">15+ years</option>
-                  </select>
-                </div>
-
-                {/* Fees */}
-                <div className="flex flex-col gap-y-3 bg-white p-3 rounded-2xl shadow-lg">
-                  <span className="font-bold">Fees</span>
-                  <select className="border p-3 border-gray-300 rounded-xl text-gray-700 font-semibold focus:outline-none focus:ring-2 focus:ring-[#A020F0]">
-                    <option value="" disabled>
-                      Any Range
-                    </option>
-                    <option value="under300">Under 300</option>
-                    <option value="300-500">300–500</option>
-                    <option value="over500">Over 500</option>
-                  </select>
-                </div>
-
-                {/* Availability */}
-                <div className="flex flex-col gap-y-3 bg-white p-3 rounded-2xl shadow-lg">
-                  <span className="font-bold">Availability</span>
-                  <select className="border p-3 border-gray-300 rounded-xl text-gray-700 font-semibold focus:outline-none focus:ring-2 focus:ring-[#A020F0]">
-                    <option value="" disabled>
-                      Any Time
-                    </option>
-                    <option>Morning</option>
-                    <option>Afternoon</option>
-                    <option>Evening</option>
-                  </select>
-                </div>
+            <div className="w-full max-w-6xl flex flex-wrap justify-center gap-4">
+              {/* Location */}
+              <div className="flex flex-col gap-y-2 bg-white py-3 px-7 rounded-2xl shadow-lg">
+                <span className="font-bold">Location</span>
+                <select
+                  className="border p-3 border-gray-300 rounded-xl text-gray-700 font-semibold focus:outline-none focus:ring-2 focus:ring-[#A020F0]"
+                  value={locationFilter}
+                  onChange={(e) => setLocationFilter(e.target.value)}
+                >
+                  <option value="">All Locations</option>
+                  {allLocations.map((loc) => (
+                    <option key={loc}>{loc}</option>
+                  ))}
+                </select>
+              </div>
+              {/* Illness */}
+              <div className="flex flex-col gap-y-3 bg-white p-3 rounded-2xl shadow-lg">
+                <span className="font-bold">Illness</span>
+                <select
+                  className="border p-3 border-gray-300 rounded-xl text-gray-700 font-semibold focus:outline-none focus:ring-2 focus:ring-[#A020F0]"
+                  value={illnessFilter}
+                  onChange={(e) => setIllnessFilter(e.target.value)}
+                >
+                  <option value="">All Types</option>
+                  {allIllnesses.map((illness) => (
+                    <option key={illness}>{illness}</option>
+                  ))}
+                </select>
+              </div>
+              {/* Experience */}
+              <div className="flex flex-col gap-y-3 bg-white p-3 rounded-2xl shadow-lg">
+                <span className="font-bold">Experience</span>
+                <select
+                  className="border p-3 border-gray-300 rounded-xl text-gray-700 font-semibold focus:outline-none focus:ring-2 focus:ring-[#A020F0]"
+                  value={experienceFilter}
+                  onChange={(e) => setExperienceFilter(e.target.value)}
+                >
+                  <option value="">Any Experience</option>
+                  <option value="5+">5+ years</option>
+                  <option value="10+">10+ years</option>
+                  <option value="15+">15+ years</option>
+                </select>
+              </div>
+              {/* Fees */}
+              <div className="flex flex-col gap-y-3 bg-white p-3 rounded-2xl shadow-lg">
+                <span className="font-bold">Fees</span>
+                <select
+                  className="border p-3 border-gray-300 rounded-xl text-gray-700 font-semibold focus:outline-none focus:ring-2 focus:ring-[#A020F0]"
+                  value={feesFilter}
+                  onChange={(e) => setFeesFilter(e.target.value)}
+                >
+                  <option value="">Any Range</option>
+                  <option value="under300">Under 300</option>
+                  <option value="300-500">300–500</option>
+                  <option value="over500">Over 500</option>
+                </select>
+              </div>
+              {/* Availability */}
+              <div className="flex flex-col gap-y-3 bg-white p-3 rounded-2xl shadow-lg">
+                <span className="font-bold">Availability</span>
+                <select
+                  className="border p-3 border-gray-300 rounded-xl text-gray-700 font-semibold focus:outline-none focus:ring-2 focus:ring-[#A020F0]"
+                  value={availabilityFilter}
+                  onChange={(e) => setAvailabilityFilter(e.target.value)}
+                >
+                  <option value="">Any Time</option>
+                  <option>Available Today</option>
+                  <option>Available Tomorrow</option>
+                  <option>Available in next 7 days</option>
+                </select>
               </div>
             </div>
           </div>
-          <div className="w-5/6 mx-auto grid grid-cols-1 md:grid-cols-3 gap-x-3 gap-y-12 mt-8">
-            {doctors.map((doctor) => (
-              <div className="bg-white rounded-lg px-4 -900 w-[350px] py-4 shadow-2xl">
-                <div className="flex gap-5 ">
+          <div className="w-full md:w-5/6 mx-auto grid grid-cols-1 md:grid-cols-3 gap-x-3 gap-y-12 mt-8">
+            {filteredDoctors.length === 0 && (
+              <div className="col-span-full text-center text-gray-500 text-xl font-bold">
+                No doctors found matching your criteria
+              </div>
+            )}
+            {filteredDoctors.map((doctor, index) => (
+              <div
+                key={index}
+                className="bg-white rounded-lg px-4 py-4 shadow-2xl w-full max-w-xs mx-auto"
+              >
+                <div className="flex gap-5">
                   <img
                     src={doctor.image}
-                    alt="doctor-image"
+                    alt="doctor"
                     className="w-24 h-auto rounded-full shadow-lg"
                   />
                   <div className="my-auto">
@@ -228,24 +341,24 @@ const ExploreDoctors = () => {
                   </div>
                 </div>
                 <div className="p-4 my-2 font-bold space-y-2">
-                  <div className="flex gap-x-2 space-y-1 ">
+                  <div className="flex gap-x-2 items-center">
                     <img src={BagIcon} alt="" className="w-7 h-auto" />
-                    <p className="">{doctor.experience} experience</p>
+                    <p>{doctor.experience} experience</p>
                   </div>
-                  <div className="flex gap-x-2 space-y-1">
+                  <div className="flex gap-x-2 items-center">
                     <img src={RupeesIcon} alt="" className="w-7 h-auto" />
                     <p>{doctor.fees}</p>
                   </div>
-                  <div className="flex gap-x-2 space-y-1">
+                  <div className="flex gap-x-2 items-center">
                     <img src={LocationIcon} alt="" className="w-7 h-auto" />
                     <p>{doctor.location}</p>
                   </div>
                 </div>
-                <div className="flex justify-between ">
-                  <button className="bg-purple-600 hover:bg-purple-800 text-white font-bold text-lg py-2 px-7 rounded-lg">
+                <div className="flex justify-between mt-4 ">
+                  <button className="bg-purple-600 hover:bg-purple-800 text-white font-bold text-lg py-2 px-5 rounded-lg">
                     Book Now
                   </button>
-                  <button className="bg-white hover:bg-gray-100 text-purple-600 border border-gray-500 text-lg font-bold py-2 px-7 rounded-lg">
+                  <button className="bg-white hover:bg-gray-100 text-purple-600 border border-gray-500 text-lg font-bold py-2 px-5 rounded-lg">
                     View Profile
                   </button>
                 </div>

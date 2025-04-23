@@ -1,5 +1,7 @@
 import React from "react";
 import SearchIcon from "../../assets/Icontexto-Search-Search-purple.png"
+import {useNavigate} from 'react-router-dom'
+
 const healthConditions = [
   {
     title: "Cardiology",
@@ -24,6 +26,7 @@ const healthConditions = [
 ];
 
 const HealthConcerns = () => {
+  const navigate = useNavigate();
   return (
     <div id="health-concerns" className="scroll-mt-16 py-16 bg-white">
       <h2 className="flex justify-center items-center space-x-2 text-4xl font-bold text-center text-purple-800 mb-5">
@@ -35,7 +38,7 @@ const HealthConcerns = () => {
       </p>
     <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 px-4">
         {healthConditions.map((healthCondition, index) => (
-          <div key={index} className="bg-gray-100 text-center p-6 rounded-xl shadow-sm hover:shadow-xl transition duration-300 " >
+          <div key={index} onClick={() => navigate(`/explore-doctors?query=${encodeURIComponent(healthCondition.title.slice(0,6))}`)} className="bg-gray-100 text-center p-6 rounded-xl shadow-sm hover:shadow-xl cursor-pointer transition duration-300 " >
             <div className="text-6xl mb-5">{healthCondition.icon}</div>
             <h3 className="text-2xl font-bold mb-3">{healthCondition.title}</h3>
             <p className="text-gray-800">{healthCondition.description}</p>

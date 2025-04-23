@@ -1,7 +1,9 @@
 import React from "react";
 import heroImage from "../../assets/space-stethoscope-pills.jpg";
+import { useNavigate } from 'react-router-dom'
 
 const HeroSection = () => {
+  const navigate = useNavigate()
   return (
     <section
       className="h-screen w-full bg-cover bg-center"
@@ -17,11 +19,14 @@ const HeroSection = () => {
             appointments with ease.
           </p>
           <div className="space-x-4 flex ">
-            <button className="bg-purple-600 hover:bg-purple-800 text-white font-bold py-3 px-8 rounded-lg">
+            <button className="bg-purple-600 hover:bg-purple-800 text-white font-bold py-3 px-8 rounded-lg" 
+            onClick={() => navigate('/explore-doctors')}
+            >
               Book Appointment
             </button>
-            <button className="bg-white hover:bg-gray-100 text-purple-600 text-lg font-bold py-3 px-8 rounded-lg">
-              Learn More
+            <button className="bg-white hover:bg-gray-100 text-purple-600 text-lg font-bold py-3 px-8 rounded-lg"
+            >
+              <a href="#health-concerns">Learn More</a>
             </button>
           </div>
         </div>
