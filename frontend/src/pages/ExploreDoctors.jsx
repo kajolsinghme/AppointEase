@@ -8,6 +8,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 
 const doctors = [
   {
+    id: "1",
     name: "Dr. Michael Chen",
     specialty: "Neurologist",
     experience: "10 years",
@@ -21,6 +22,7 @@ const doctors = [
     image: "https://randomuser.me/api/portraits/men/49.jpg",
   },
   {
+    id: "2",
     name: "Dr. Sarah Johnson",
     specialty: "Cardiologist",
     experience: "15 years",
@@ -34,6 +36,7 @@ const doctors = [
     image: "https://randomuser.me/api/portraits/women/76.jpg",
   },
   {
+    id: "3",
     name: "Dr. Jacob Wilson",
     specialty: "Dermatologist",
     experience: "8 years",
@@ -47,6 +50,7 @@ const doctors = [
     image: "https://randomuser.me/api/portraits/men/94.jpg",
   },
   {
+    id: "4",
     name: "Dr. Emily Carter",
     specialty: "Pediatrician",
     experience: "12 years",
@@ -60,6 +64,7 @@ const doctors = [
     image: "https://randomuser.me/api/portraits/women/65.jpg",
   },
   {
+    id: "5",
     name: "Dr. David Lee",
     specialty: "Orthopedic Surgeon",
     experience: "20 years",
@@ -73,6 +78,7 @@ const doctors = [
     image: "https://randomuser.me/api/portraits/men/22.jpg",
   },
   {
+    id: "6",
     name: "Dr. Olivia Smith",
     specialty: "Psychiatrist",
     experience: "9 years",
@@ -354,13 +360,15 @@ const ExploreDoctors = () => {
                     <p>{doctor.location}</p>
                   </div>
                 </div>
-                <div className="flex justify-between mt-4 ">
-                  <button className="bg-purple-600 hover:bg-purple-800 text-white font-bold text-lg py-2 px-5 rounded-lg">
+                <div className="flex justify-start ml-4 mt-2 ">
+                  <button className="bg-purple-600 hover:bg-purple-800 text-white font-bold text-lg py-2 px-5 rounded-lg"
+                  onClick={() => navigate(`/book-appointment/${doctor.id}`)}
+                  >
                     Book Now
                   </button>
-                  <button className="bg-white hover:bg-gray-100 text-purple-600 border border-gray-500 text-lg font-bold py-2 px-5 rounded-lg">
+                  {/* <button className="bg-white hover:bg-gray-100 text-purple-600 border border-gray-500 text-lg font-bold py-2 px-5 rounded-lg">
                     View Profile
-                  </button>
+                  </button> */}
                 </div>
               </div>
             ))}

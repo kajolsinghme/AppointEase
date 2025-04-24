@@ -1,4 +1,5 @@
-  import React from "react";
+  import React, { useState } from "react";
+  import {useNavigate } from "react-router-dom";
 
   const doctors = [
     {
@@ -28,6 +29,7 @@
   ];
 
   const DoctorsSection = () => {
+    const navigate = useNavigate()
     return (
       <div className="py-16 bg-gray-100">
         <h2 className="text-4xl font-bold text-center mb-10 text-purple-800">Available Doctors</h2>
@@ -38,7 +40,7 @@
               <h3 className="text-xl font-bold">{doctor.name}</h3>
               <p className="text-gray-700 font-semibold mt-2">{doctor.specialty}</p>
               <p className="text-sm text-gray-500 mt-2">{doctor.timing}</p>
-              <button className="mt-4 bg-purple-600 hover:bg-purple-800 text-white font-bold py-2 px-6 rounded-lg">
+              <button onClick={() => navigate('/book-appointment')} className="mt-4 bg-purple-600 hover:bg-purple-800 text-white font-bold py-2 px-6 rounded-lg">
                 Book Now
               </button>
             </div>
