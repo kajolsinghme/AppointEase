@@ -5,3 +5,7 @@
 html {
   scroll-behavior: smooth;
 }
+.mantine-MultiSelect-pill{
+    border: 1px solid lightgray;
+    font-size: 17px!important;
+}

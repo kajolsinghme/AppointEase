@@ -2,8 +2,7 @@ import express from "express";
 import { bookAppointment, rescheduleAppointment, cancelAppointment} from "../controllers/appointmentController.js";
 import { authorisedRolesMiddleware, validateAuthenticationMiddleware } from "../middlewares/authMiddleware.js";
 import { validateBookAppointmentMiddleware, validateRescheduleAppointmentMiddleware } from "../middlewares/appointmentMiddleware.js";
-import { USER_TYPE } from "../constants/enums.js";
-
+import { USER_TYPE} from "../constants/enums.js"
 const router = express.Router();
 
 // Book an appointment

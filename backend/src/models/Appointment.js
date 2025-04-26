@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { APPOINTMENT_STATUS, APPOINTMENT_TYPE } from "../constants/enums";
+import { APPOINTMENT_STATUS, APPOINTMENT_TYPE } from "../constants/enums.js";
 
 const appointmentSchema = mongoose.Schema(
   {
