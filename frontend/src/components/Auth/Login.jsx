@@ -10,7 +10,6 @@ const Login = () => {
 
   const handleLogin = (e) => {
     e.preventDefault();
-    // Add actual login logic here (API call)
     console.log('Logging in with', email, password);
     navigate('/'); 
   };
