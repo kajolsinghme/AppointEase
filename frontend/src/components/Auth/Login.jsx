@@ -1,28 +1,46 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import Navbar from '../Navbar/Navbar';
-import Footer from '../Footer/Footer';
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import Navbar from "../Navbar/Navbar";
+import Footer from "../Footer/Footer";
+import { login } from "../../store/auth/authSlice";
 
 const Login = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const dispatch = useDispatch();
+  const { user, loading, error } = useSelector((state) => state.auth);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const navigate = useNavigate();
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-    console.log('Logging in with', email, password);
-    navigate('/'); 
+    try {
+      const resultAction = await dispatch(login({ email, password }));
+
+      if (login.fulfilled.match(resultAction)) {
+        console.log("Login successful:", resultAction.payload);
+        navigate("/");
+      } else {
+        console.error("Login failed:", resultAction.payload);
+      }
+    } catch (err) {
+      console.error("Something went wrong:", err);
+    }
   };
 
   return (
     <div id="login">
-      <Navbar/>
+      <Navbar />
       <div className="min-h-screen flex justify-center bg-gray-100 px-4 py-20">
         <div className="w-1/3 h-2/6 bg-white shadow-2xl rounded-xl p-8">
-          <h1 className="text-[28px] font-bold text-center text-purple-700 mb-10">Login to Your Account</h1>
+          <h1 className="text-[28px] font-bold text-center text-purple-700 mb-10">
+            Login to Your Account
+          </h1>
           <form onSubmit={handleLogin} className="space-y-4">
             <div>
-              <label className="block mb-2 text-lg font-medium text-gray-700">Email</label>
+              <label className="block mb-2 text-lg font-medium text-gray-700">
+                Email
+              </label>
               <input
                 type="email"
                 className="w-full px-4 py-2  mb-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-700"
@@ -33,7 +51,9 @@ const Login = () => {
               />
             </div>
             <div>
-              <label className="block mb-2 text-lg font-medium text-gray-700">Password</label>
+              <label className="block mb-2 text-lg font-medium text-gray-700">
+                Password
+              </label>
               <input
                 type="password"
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg mb-4 focus:outline-none focus:ring-2 focus:ring-purple-700"
@@ -45,17 +65,25 @@ const Login = () => {
             </div>
             <button
               type="submit"
+              disabled={loading}
               className="w-full bg-purple-600 text-white font-bold py-2 rounded-lg hover:bg-purple-800 transition duration-200"
             >
               Login
             </button>
             <p className="text-lg text-center text-gray-600 mt-2">
-              Don’t have an account? <a href="/register" className="text-purple-700 font-medium hover:underline">Register</a>
+              Don’t have an account?{" "}
+              <a
+                href="/register"
+                className="text-purple-700 font-medium hover:underline"
+              >
+                Register
+              </a>
             </p>
+            {error && <p className="text-red-600">{error}</p>}
           </form>
         </div>
       </div>
-      <Footer/>
+      <Footer />
     </div>
   );
 };

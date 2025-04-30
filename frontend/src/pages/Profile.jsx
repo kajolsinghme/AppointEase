@@ -286,7 +286,7 @@ const Profile = () => {
               }
               classNames={{
                 label: "font-medium !text-xl mb-2",
-                input: "focus:ring-2 focus:ring-purple-800 rounded-md",
+              input: "focus:ring-2 focus:ring-purple-800 rounded-md",
                 dropdown: "rounded-lg shadow-lg",
                 option: "hover:bg-purple-600 hover:text-white cursor-pointer",
               }}
