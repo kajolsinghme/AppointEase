@@ -1,51 +1,8 @@
-// import React from "react";
-// import Navbar from "../components/Navbar/Navbar";
-// import { useParams } from "react-router-dom";
-
-// const doctors = [
-//   {
-//     id: "1",
-//     name: "Dr. Keaya Joseph",
-//     email: "keayajoseph@gmail.com",
-//     specialty: "Neurologist",
-//     experience: "10 years",
-//     fees: "300 per visit",
-//     location: "Brooklyn, NY",
-//     availability: [
-//       { day: "Thursday", startTime: "09:00 AM", endTime: "05:00 PM" },
-//       { day: "Friday", startTime: "09:00 AM", endTime: "05:00 PM" },
-//       { day: "Saturday", startTime: "09:00 AM", endTime: "05:00 PM" },
-//     ],
-//     image: "https://randomuser.me/api/portraits/women/64.jpg",
-//     rating: 4.8,
-//     reviews: 280,
-//     hospital: "Memorial Hospital, New York",
-//     videoConsultation: true,
-//   },
-// ];
-
-// const Profile = () => {
-//   const { doctorId } = useParams();
-//   const doctor = doctors.find((doc) => doc.id === doctorId);
-//   return (
-//     <>
-//       <Navbar />
-//       <div className="bg-gray-100 min-h-screen py-10 px-28">
-//         <div className="w-full h-[80px] rounded-lg text-purple-500 bg-purple-500"></div>
-//         <div className="bg-white w-full h-[800px] border-4 py-5 rounded-lg border-red-900">
-//             <img src={doctor.image} alt="" />
-//             <h1>{doctor.name}</h1>
-//             <p>{doctor.email}</p>
-//         </div>
-//       </div>
-//     </>
-//   );
-// };
-
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Navbar from "../components/Navbar/Navbar";
 import Footer from "../components/Footer/Footer";
 import { MultiSelect } from "@mantine/core";
+import { getUserProfile, updateUserProfile } from "../api/userAPI";
 
 const options = [
   { label: "Cold & Flu", value: "cold-flu" },
@@ -67,17 +24,16 @@ const daysOfWeek = [
 const Profile = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [selected, setSelected] = useState([]);
-
-  // Editable fields state
   const [profile, setProfile] = useState({
-    fullName: "Dr. Alexa Rawles",
-    specialization: "Neurologist",
-    experience: 10,
-    address: "Sushant Lok Phase 1",
-    city: "Gurgaon",
-    state: "Haryana",
+    name: "",
+    email: "",
+    specialization: "",
+    yearsOfExperience: 0,
+    clinicAddress: "",
+    city: "",
+    state: "",
     mobile: "",
-    fee: 300,
+    consultationFee: 0,
     illnesses: [],
     availability: [],
   });
@@ -85,16 +41,59 @@ const Profile = () => {
   // For adding new availability
   const [newAvailability, setNewAvailability] = useState({
     day: "",
-    start: "",
-    end: "",
+    startTime: "",
+    endTime: "",
   });
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      const data = await getUserProfile()
+      if (data) {
+        console.log("data",data.data.doctorDetails.specialization)
+        setProfile({
+          name: data.data.name ?? "",
+          email: data.data.email ?? "",
+          specialization: data.data.doctorDetails.specialization?? "",
+          yearsOfExperience: data.data.doctorDetails.yearsOfExperience ?? 0,
+          clinicAddress: data.data.doctorDetails.clinicAddress ?? "",
+          city: data.data.doctorDetails.city ?? "",
+          state: data.data.doctorDetails.state ?? "",
+          mobile :data.data.doctorDetails.mobile ?? "",
+          consultationFee: data.data.doctorDetails.consultationFee ?? 0,
+          illnesses: data.data.doctorDetails.illnesses ?? [],
+          availability: data.data.doctorDetails.availability ?? [],
+        });
+        
+      }
+    };
+
+    fetchProfile();
+  }, []);
+
+  const handleEditSave = async() => {
+    if(isEditing){
+      try{
+        const {email, ...updatedProfile} = profile
+        console.log("updatedProfile", updatedProfile)
+        const response = await updateUserProfile(updatedProfile)
+        console.log(response)
+        setIsEditing(false)
+      }
+      catch(err){
+        console.log("Failed to update the user profile:", err)
+      }
+    }
+    else{
+      setIsEditing(true)
+    }
+  }
 
   // Handle input changes
   const handleChange = (e) => {
-    const { name, value } = e.target;
+    const { name, value, type } = e.target;
     setProfile((prev) => ({
       ...prev,
-      [name]: value,
+      [name]: type === 'number' ? Number(value) : value,
     }));
   };
 
@@ -114,15 +113,15 @@ const Profile = () => {
   const handleAddAvailability = () => {
     if (
       newAvailability.day &&
-      newAvailability.start &&
-      newAvailability.end &&
+      newAvailability.startTime &&
+      newAvailability.endTime &&
       !profile.availability.some((a) => a.day === newAvailability.day)
     ) {
       setProfile((prev) => ({
         ...prev,
         availability: [...prev.availability, newAvailability],
       }));
-      setNewAvailability({ day: "", start: "", end: "" });
+      setNewAvailability({ day: "", startTime: "", endTime: "" });
     }
   };
 
@@ -148,15 +147,13 @@ const Profile = () => {
                 className="w-32 h-auto rounded-full"
               />
               <div>
-                <h2 className="text-2xl font-bold mb-1">{profile.fullName}</h2>
-                <p className="text-gray-600 font-semibold">
-                  alexarawles@gmail.com
-                </p>
+                <h2 className="text-2xl font-bold mb-1">{profile.name}</h2>
+                <p className="text-gray-600 font-semibold">{profile.email}</p>
               </div>
             </div>
             <button
               className="bg-purple-600 text-white font-bold px-5 py-2 rounded-lg hover:bg-purple-800 transition"
-              onClick={() => setIsEditing((prev) => !prev)}
+              onClick={handleEditSave}
             >
               {isEditing ? "Save" : "Edit"}
             </button>
@@ -170,8 +167,8 @@ const Profile = () => {
               </label>
               <input
                 type="text"
-                name="fullName"
-                value={profile.fullName}
+                name="name"
+                value={profile.name}
                 onChange={handleChange}
                 className="input font-semibold rounded-md border border-gray-400 px-2 py-3 w-full focus:outline-none focus:ring-2 focus:ring-[#A020F0]"
                 disabled={!isEditing}
@@ -196,8 +193,8 @@ const Profile = () => {
               </label>
               <input
                 type="number"
-                name="experience"
-                value={profile.experience}
+                name="yearsOfExperience"
+                value={profile.yearsOfExperience}
                 onChange={handleChange}
                 className="input font-semibold rounded-md border border-gray-400 px-2 py-3 w-full focus:outline-none focus:ring-2 focus:ring-[#A020F0]"
                 disabled={!isEditing}
@@ -209,18 +206,16 @@ const Profile = () => {
               </label>
               <input
                 type="text"
-                name="address"
-                value={profile.address}
+                name="clinicAddress"
+                value={profile.clinicAddress}
                 onChange={handleChange}
                 className="input font-semibold rounded-md border border-gray-400 px-2 py-3 w-full focus:outline-none focus:ring-2 focus:ring-[#A020F0]"
                 disabled={!isEditing}
-                placeholder="Address"
+                placeholder="Enter clinic address"
               />
             </div>
             <div>
-              <label className="block text-xl font-medium mb-2">
-                City
-              </label>
+              <label className="block text-xl font-medium mb-2">City</label>
               <input
                 type="text"
                 name="city"
@@ -232,9 +227,7 @@ const Profile = () => {
               />
             </div>
             <div>
-              <label className="block text-xl font-medium mb-2">
-                State
-              </label>
+              <label className="block text-xl font-medium mb-2">State</label>
               <input
                 type="text"
                 name="state"
@@ -265,8 +258,10 @@ const Profile = () => {
               </label>
               <input
                 type="number"
-                name="fee"
-                value={profile.fee}
+                name="consultationFee"
+                value={profile.consultationFee}
+                min={1}
+                max={100000}
                 onChange={handleChange}
                 className="input font-semibold rounded-md border border-gray-400 px-2 py-3 w-full focus:outline-none focus:ring-2 focus:ring-[#A020F0]"
                 disabled={!isEditing}
@@ -286,7 +281,7 @@ const Profile = () => {
               }
               classNames={{
                 label: "font-medium !text-xl mb-2",
-              input: "focus:ring-2 focus:ring-purple-800 rounded-md",
+                input: "focus:ring-2 focus:ring-purple-800 rounded-md",
                 dropdown: "rounded-lg shadow-lg",
                 option: "hover:bg-purple-600 hover:text-white cursor-pointer",
               }}
@@ -308,7 +303,7 @@ const Profile = () => {
                   <li key={idx} className="flex items-center gap-2 mb-2">
                     <span className="font-semibold">{slot.day}:</span>
                     <span>
-                      {slot.start} - {slot.end}
+                      {slot.startTime} - {slot.endTime}
                     </span>
                     {isEditing && (
                       <button
@@ -348,30 +343,29 @@ const Profile = () => {
                   </select>
                   <input
                     type="time"
-                    value={newAvailability.start}
+                    value={newAvailability.startTime}
                     onChange={(e) =>
                       setNewAvailability((prev) => ({
                         ...prev,
-                        start: e.target.value,
+                        startTime: e.target.value,
                       }))
                     }
                     className="border px-2 py-1 rounded"
                   />
                   <input
                     type="time"
-                    value={newAvailability.end}
+                    value={newAvailability.endTime}
                     onChange={(e) =>
                       setNewAvailability((prev) => ({
                         ...prev,
-                        end: e.target.value,
+                        endTime: e.target.value,
                       }))
                     }
                     className="border px-2 py-1 rounded"
                   />
                   <button
                     onClick={handleAddAvailability}
-                    className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-800"
-                    type="button"
+                    className="bg-purple-600 text-white font-bold px-4 py-2 rounded hover:bg-purple-700 transition"
                   >
                     Add
                   </button>

@@ -4,7 +4,8 @@ import {
 } from "../validators/authValidator.js";
 import { fromZodError } from "zod-validation-error";
 import jwt from "jsonwebtoken";
-import User from "../models/User.js";
+import { User } from "../models/User.js";
+
 
 export const validateRegisterUserMiddleware = (req, res, next) => {
   const validationResult = validatorRegisterUser.safeParse(req.body);
@@ -44,7 +45,6 @@ export const validateAuthenticationMiddleware = async (req, res, next) => {
     try {
       token = req.headers.authorization.split(" ")[1];
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
-
       req.user = await User.findById(decoded.userId);
 
       if (!req.user) {

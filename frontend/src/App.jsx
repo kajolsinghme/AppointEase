@@ -6,6 +6,7 @@ import ScrollToTop from "./components/ScrollToTop/ScrollToTop";
 import BookAppointment from "./pages/BookAppointment";
 import Login from "./components/Auth/Login";
 import Profile from "./pages/Profile";
+import Signup from "./components/Auth/Signup";
 
 function App() {
   return (
@@ -20,8 +21,9 @@ function App() {
           path="/book-appointment/:doctorId"
           element={<BookAppointment />}
         />
+        <Route path="/signup" element={<Signup/>}/>
         <Route path="/login" element={<Login />} />
-        <Route path="/profile/:doctorId" element={<Profile />} />
+        <Route path="/profile" element={<Profile />} />
       </Routes>
     </BrowserRouter>
   );

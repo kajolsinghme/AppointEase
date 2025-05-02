@@ -1,10 +1,12 @@
-import User from "../models/User.js";
+import { USER_TYPE } from "../constants/enums.js";
+import { User, DoctorDetails } from "../models/User.js";
+
 
 export const getProfile = async (req, res) => {
   try {
     const userId = req.user.id;
 
-    const user = await User.findById(userId).select("-password");
+    const user = await User.findById(userId).select("-password").populate("doctorDetails");
 
     if (!user) {
       return res
@@ -28,40 +30,60 @@ export const getProfile = async (req, res) => {
 export const updateProfile = async (req, res) => {
   try {
     const userId = req.user.id;
-
+    console.log("userId", userId)
     const {
       name,
       specialization,
-      experience,
+      yearsOfExperience,
+      mobile,
       clinicAddress,
+      city,
+      state,
       consultationFee,
       availability,
+      illnesses,
     } = req.body;
 
-    const user = await User.findById(userId);
+    const user = await User.findById(userId).populate("doctorDetails");
+
     if (!user) {
-      return res
-        .status(404)
-        .json({ success: false, message: "User not found" });
+      return res.status(404).json({ success: false, message: "User not found" });
     }
 
-    // Update basic fields
+    // Update common fields
     if (name) user.name = name;
 
-    // If user is a doctor, update doctor-specific fields
-    if (user.role === "doctor") {
-      if (specialization) user.doctorDetails.specialization = specialization;
-      if (experience) user.doctorDetails.experience = experience;
-      if (clinicAddress) user.doctorDetails.clinicAddress = clinicAddress;
-      if (consultationFee) user.doctorDetails.consultationFee = consultationFee;
-      if (availability) user.doctorDetails.availability = availability;
+    if (user.role === USER_TYPE.DOCTOR) {
+      let doctorDoc;
+
+      if (user.doctorDetails) {
+        doctorDoc = user.doctorDetails;
+      } else {
+        // Create a new doctor details document if not exists
+        doctorDoc = new DoctorDetails();
+        user.doctorDetails = doctorDoc._id;
+      }
+
+      if (specialization !== undefined) doctorDoc.specialization = specialization;
+      if (yearsOfExperience !== undefined) doctorDoc.yearsOfExperience = yearsOfExperience;
+      if (mobile !== undefined) doctorDoc.mobile = mobile;
+      if (clinicAddress !== undefined) doctorDoc.clinicAddress = clinicAddress;
+      if (city !== undefined) doctorDoc.city = city;
+      if (state !== undefined) doctorDoc.state = state;
+      if (consultationFee !== undefined) doctorDoc.consultationFee = consultationFee;
+      if (availability !== undefined) doctorDoc.availability = availability;
+      if (illnesses !== undefined) doctorDoc.illnesses = illnesses;
+
+      await doctorDoc.save();
     }
 
     await user.save();
 
-    return res
-      .status(200)
-      .json({ success: true, message: "Profile updated successfully" });
+    return res.status(200).json({
+      success: true,
+      message: "Profile updated successfully",
+      user,
+    });
   } catch (error) {
     return res.status(500).json({
       success: false,
@@ -70,6 +92,8 @@ export const updateProfile = async (req, res) => {
     });
   }
 };
+
+
 
 export const getAllDoctors = async (req, res) => {
   try {
@@ -81,13 +105,11 @@ export const getAllDoctors = async (req, res) => {
         .json({ success: false, message: "No doctors found" });
     }
 
-    return res
-      .status(200)
-      .json({
-        success: true,
-        message: "List of all doctors fetched successfully",
-        data: doctors,
-      });
+    return res.status(200).json({
+      success: true,
+      message: "List of all doctors fetched successfully",
+      data: doctors,
+    });
   } catch (error) {
     return res.status(500).json({
       success: false,
@@ -101,7 +123,7 @@ export const getDoctorById = async (req, res) => {
   try {
     const doctorId = req.params;
 
-    const doctor = await User.findOne({ _id: doctorId, role: "doctor" })
+    const doctor = await User.findOne({ _id: doctorId, role: "doctor" });
 
     if (!doctor) {
       return res
@@ -109,13 +131,11 @@ export const getDoctorById = async (req, res) => {
         .json({ success: false, message: "Doctor not found" });
     }
 
-    return res
-      .status(200)
-      .json({
-        success: true,
-        message: "Doctor details fetched successfully",
-        data: doctor,
-      });
+    return res.status(200).json({
+      success: true,
+      message: "Doctor details fetched successfully",
+      data: doctor,
+    });
   } catch (error) {
     return res.status(500).json({
       success: false,

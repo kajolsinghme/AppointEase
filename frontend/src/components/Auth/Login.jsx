@@ -7,7 +7,7 @@ import { login } from "../../store/auth/authSlice";
 
 const Login = () => {
   const dispatch = useDispatch();
-  const { user, loading, error } = useSelector((state) => state.auth);
+  const { loading, error } = useSelector((state) => state.auth);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
@@ -73,10 +73,10 @@ const Login = () => {
             <p className="text-lg text-center text-gray-600 mt-2">
               Don’t have an account?{" "}
               <a
-                href="/register"
+                href="/signup"
                 className="text-purple-700 font-medium hover:underline"
               >
-                Register
+                Signup
               </a>
             </p>
             {error && <p className="text-red-600">{error}</p>}

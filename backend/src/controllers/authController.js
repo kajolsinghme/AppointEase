@@ -1,11 +1,11 @@
-import User from "../models/User.js";
+import { User } from "../models/User.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 
 export const registerUser = async(req, res) => {
     try{
         const {name, email, password, role} = req.body;
-
+        
         let existingUser = await User.findOne({email})
 
         if(existingUser){
@@ -26,7 +26,7 @@ export const registerUser = async(req, res) => {
         res.status(201).json({success: true, message: "User registered successfully", data: {id: newUser._id}})
     }
     catch(error){
-        res.status(500).json({success: false, message: "Internal Server Error", error: error.message})
+        res.status(500).json({success: false, message: "Internal Server Error", error: error})
     }
 }
 

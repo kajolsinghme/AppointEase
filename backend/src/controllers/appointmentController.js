@@ -1,6 +1,6 @@
 import { APPOINTMENT_STATUS } from "../constants/enums.js";
 import Appointment from "../models/Appointment.js";
-import User from "../models/User.js";
+import { User } from "../models/User.js";
 import { sendAppointmentConfirmation } from "../utils/email/mailer.js";
 import {createZoomMeeting} from "../utils/zoom/zoomService.js"
 import dotenv from "dotenv";
