@@ -1,27 +1,33 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Logo from "../../assets/logo.png";
-import  jwtDecode  from "jwt-decode";
-import {useDispatch} from 'react-redux'
+import jwtDecode from "jwt-decode";
+import { useDispatch } from "react-redux";
 import { logout } from "../../store/auth/authSlice";
 import { getUserProfile } from "../../api/userAPI";
 
 const Navbar = () => {
   const navigate = useNavigate();
-  const dispatch = useDispatch()
+  const dispatch = useDispatch();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [profilePic, setProfilePic] = useState(null);
+  const [profilePic, setProfilePic] = useState("https://i.postimg.cc/Dz99WDqt/user.png");
 
   const toggleDropdown = () => setIsDropdownOpen(!isDropdownOpen);
 
   useEffect(() => {
+    console.log("navbar useffect");
     const fetchProfileImage = async () => {
       const token = localStorage.getItem("token");
       if (token) {
         try {
           jwtDecode(token);
           setIsLoggedIn(true);
+          const response = await getUserProfile();
+          console.log("navbar image", response)
+          if (response?.success && response.data?.profileImage) {
+            setProfilePic(response.data.profileImage);
+          }
         } catch (error) {
           console.error("Token decoding error:", error);
           setIsLoggedIn(false);
@@ -29,25 +35,16 @@ const Navbar = () => {
       } else {
         setIsLoggedIn(false);
       }
-
-      try {
-        const response = await getUserProfile();
-        if (response?.success && response.data?.profileImage) {
-          setProfilePic(response.data.profileImage);
-        }
-      } catch (err) {
-        console.error("Failed to fetch user profile:", err);
-      }
     };
 
     fetchProfileImage();
   }, []);
 
   const handleLogout = () => {
-      dispatch(logout())
-      setIsLoggedIn(false)
-      navigate('/login')
-  }
+    dispatch(logout());
+    setIsLoggedIn(false);
+    navigate("/login");
+  };
 
   return (
     <nav className="w-full h-20 flex items-center justify-between bg-white shadow-md sticky top-0 z-50 px-4">
@@ -63,7 +60,7 @@ const Navbar = () => {
       </div>
 
       <div>
-        <ul className="flex space-x-4 font-medium text-xl">
+        <ul className="flex space-x-6 font-medium text-xl">
           <li>
             <a
               href="/"
@@ -100,7 +97,7 @@ const Navbar = () => {
       </div>
 
       <div className="flex items-center space-x-4 relative">
-        {!isLoggedIn  ? (
+        {!isLoggedIn ? (
           <button
             className="bg-purple-600 hover:bg-purple-800 text-white font-bold py-3 px-8 rounded-lg"
             onClick={() => navigate("/login")}
@@ -108,11 +105,11 @@ const Navbar = () => {
             Log In
           </button>
         ) : (
-          <div className="relative">
+          <div className="relative w-11 h-11">
             <img
               src={profilePic}
               alt="profile"
-              className="w-10 h-10 rounded-full cursor-pointer"
+              className="w-full h-full object-cover rounded-full cursor-pointer"
               onClick={toggleDropdown}
             />
             {isDropdownOpen && (

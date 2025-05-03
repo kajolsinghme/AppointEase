@@ -123,6 +123,52 @@ export const getAllDoctors = async (req, res) => {
   }
 };
 
+export const getDoctorsAvailableToday = async (req, res) => {
+  try {
+    const doctors = await User.find({ role: "Doctor" }).select("-password").populate("doctorDetails");
+
+    if (doctors.length === 0) {
+      return res
+        .status(404)
+        .json({ success: false, message: "No doctors found" });
+    }
+
+    const weekdays = {
+      0: "Sunday",
+      1: "Monday",
+      2: "Tuesday",
+      3: "Wednesday",
+      4: "Thursday",
+      5: "Friday",
+      6: "Saturday"
+  };
+
+    const today = weekdays[new Date().getDay()]
+    console.log(today)
+
+    const availableDoctors = doctors.filter((doctor) => doctor.doctorDetails?.availability?.some((slot) => slot.day === today))
+
+    if(availableDoctors.length === 0){
+      return res.status(404).json({
+        success: false,
+        message: `No doctors available today`,
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: `Doctors available on ${today} fetched successfully`,
+      data: availableDoctors,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+      error: error.message,
+    });
+  }
+};
+
 export const getDoctorById = async (req, res) => {
   try {
     const doctorId = req.params;

@@ -5,10 +5,21 @@ import { MultiSelect } from "@mantine/core";
 import { getUserProfile, updateUserProfile, uploadProfileImage } from "../api/userAPI";
 
 const options = [
-  { label: "Cold & Flu", value: "cold-flu" },
   { label: "Diabetes", value: "diabetes" },
   { label: "Hypertension", value: "hypertension" },
-  // ...other illnesses
+  { label: "Heart Disease", value: "heart-disease"},
+  { label: "Allergies", value: "allergies"},
+  { label: "Cold", value: "cold"},
+  { label: "Fever", value: "fever"},
+  { label: "Psoriasis", value: "psoriasis"},
+  { label: "Acne", value: "acne"},
+  { label: "Eczema", value: "eczema"},
+  { label: "Hair Loss", value: "hair-loss"},
+  { label: "Fractures", value: "fractures"},
+  { label: "Joint Pain", value: "joint-pain"},
+  { label: "Back Pain", value: "back-pain"},
+  { label: "Arthritis", value: "arthritis"},
+ 
 ];
 
 const daysOfWeek = [

@@ -35,3 +35,14 @@ export const uploadProfileImage = async(formData) => {
         console.log("Failed to upload profile image:", error.response.data)
     }  
 }
+
+export const getDoctorsAvailableToday = async() => {
+    try{
+        const response = await apiClient.get("/user/doctors/today")
+        console.log("Doctors available today", response.data);
+        return response.data
+    }
+    catch(error){
+        console.error("Failed to fetch doctors :", error.response.data)
+    }
+}
