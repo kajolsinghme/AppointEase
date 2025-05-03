@@ -13,11 +13,25 @@ export const getUserProfile = async() => {
 
 export const updateUserProfile = async(data) => {
     try{
+        console.log("url",data)
         const response = await apiClient.patch("user/profile", data)
         console.log(response.data)
         return response.data
     }  
     catch(error){
         console.log("Failed to update the user profile:", error.response.data)
+    }  
+}
+
+export const uploadProfileImage = async(formData) => {
+    try{
+        const response  = apiClient.post("/upload", formData,{headers: {
+            "Content-Type": "multipart/form-data",
+          }})
+        
+        return response
+    }
+    catch(error){
+        console.log("Failed to upload profile image:", error.response.data)
     }  
 }

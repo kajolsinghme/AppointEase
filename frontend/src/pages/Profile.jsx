@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import Navbar from "../components/Navbar/Navbar";
 import Footer from "../components/Footer/Footer";
 import { MultiSelect } from "@mantine/core";
-import { getUserProfile, updateUserProfile } from "../api/userAPI";
+import { getUserProfile, updateUserProfile, uploadProfileImage } from "../api/userAPI";
 
 const options = [
   { label: "Cold & Flu", value: "cold-flu" },
@@ -24,6 +24,11 @@ const daysOfWeek = [
 const Profile = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [selected, setSelected] = useState([]);
+  const [imagePreview, setImagePreview] = useState(
+    "https://i.postimg.cc/Dz99WDqt/user.png"
+  );
+  const [imageFile, setImageFile] = useState(null);
+  const [imageUploading, setImageUploading] = useState(false);
   const [profile, setProfile] = useState({
     name: "",
     email: "",
@@ -47,54 +52,82 @@ const Profile = () => {
 
   useEffect(() => {
     const fetchProfile = async () => {
-      const data = await getUserProfile()
+      const data = await getUserProfile();
       if (data) {
-        console.log("data",data.data.doctorDetails.specialization)
+        console.log("name", data.data.name);
         setProfile({
           name: data.data.name ?? "",
           email: data.data.email ?? "",
-          specialization: data.data.doctorDetails.specialization?? "",
-          yearsOfExperience: data.data.doctorDetails.yearsOfExperience ?? 0,
-          clinicAddress: data.data.doctorDetails.clinicAddress ?? "",
-          city: data.data.doctorDetails.city ?? "",
-          state: data.data.doctorDetails.state ?? "",
-          mobile :data.data.doctorDetails.mobile ?? "",
-          consultationFee: data.data.doctorDetails.consultationFee ?? 0,
-          illnesses: data.data.doctorDetails.illnesses ?? [],
-          availability: data.data.doctorDetails.availability ?? [],
+          specialization: data.data.doctorDetails?.specialization ?? "",
+          yearsOfExperience: data.data.doctorDetails?.yearsOfExperience ?? 0,
+          clinicAddress: data.data.doctorDetails?.clinicAddress ?? "",
+          city: data.data.doctorDetails?.city ?? "",
+          state: data.data.doctorDetails?.state ?? "",
+          mobile: data.data.doctorDetails?.mobile ?? "",
+          consultationFee: data.data.doctorDetails?.consultationFee ?? 0,
+          illnesses: data.data.doctorDetails?.illnesses ?? [],
+          availability: data.data.doctorDetails?.availability ?? [],
         });
-        
+        setImagePreview(data.data.profileImage || "https://i.postimg.cc/Dz99WDqt/user.png");
       }
     };
 
     fetchProfile();
   }, []);
 
-  const handleEditSave = async() => {
-    if(isEditing){
-      try{
-        const {email, ...updatedProfile} = profile
-        console.log("updatedProfile", updatedProfile)
-        const response = await updateUserProfile(updatedProfile)
-        console.log(response)
-        setIsEditing(false)
+  const handleEditSave = async () => {
+    if (isEditing) {
+      try {
+        const { email, ...updatedProfile } = profile;
+        console.log("updatedProfile", updatedProfile);
+        const response = await updateUserProfile(updatedProfile);
+        console.log(response);
+        setIsEditing(false);
+      } catch (err) {
+        console.log("Failed to update the user profile:", err);
       }
-      catch(err){
-        console.log("Failed to update the user profile:", err)
-      }
+    } else {
+      setIsEditing(true);
     }
-    else{
-      setIsEditing(true)
-    }
-  }
+  };
 
   // Handle input changes
   const handleChange = (e) => {
     const { name, value, type } = e.target;
     setProfile((prev) => ({
       ...prev,
-      [name]: type === 'number' ? Number(value) : value,
+      [name]: type === "number" ? Number(value) : value,
     }));
+  };
+
+  const handleImageChange = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    setImageFile(file);
+    setImagePreview(URL.createObjectURL(file));
+    setImageUploading(true);
+
+    try {
+      const formData = new FormData();
+      formData.append("image", file);
+
+      const response = await uploadProfileImage(formData)
+      console.log("imgUrl",response.data.imageUrl)
+      const imageUrl = response.data.imageUrl;
+
+      setProfile((prev) => ({
+        ...prev,
+        profileImage: imageUrl,
+      }));
+
+      await updateUserProfile({profileImage: imageUrl})
+      setImagePreview(imageUrl)
+    } catch (error) {
+      console.error("Image upload failed or profile update failed:", error);
+    } finally {
+      setImageUploading(false);
+    }
   };
 
   // Handle illnesses multi-select
@@ -141,11 +174,25 @@ const Profile = () => {
           {/* Top Section */}
           <div className="flex items-center justify-between pb-6 mb-6">
             <div className="flex items-center gap-4">
-              <img
-                src="https://i.pravatar.cc/100"
-                alt="Doctor"
-                className="w-32 h-auto rounded-full"
-              />
+              <div className="relative w-36 h-36 ">
+                <img
+                  src={imagePreview}
+                  alt="Doctor"
+                  className="w-full h-full object-cover rounded-full border border-gray-300 shadow-sm"
+                />
+                {isEditing && (
+                  <label className="absolute inset-1 flex items-end justify-end rounded-full cursor-pointer hover:bg-opacity-50 transition ">
+                    <span className="border border-purple-500 bg-purple-500 p-1 rounded-md ">📷</span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageChange}
+                      className="hidden"
+                    />
+                  </label>
+                )}
+              </div>
+
               <div>
                 <h2 className="text-2xl font-bold mb-1">{profile.name}</h2>
                 <p className="text-gray-600 font-semibold">{profile.email}</p>

@@ -1,31 +1,46 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Logo from "../../assets/logo.png";
-import ProfilePic from "../../assets/Kajol_21f1001886.jpg";
 import  jwtDecode  from "jwt-decode";
 import {useDispatch} from 'react-redux'
 import { logout } from "../../store/auth/authSlice";
+import { getUserProfile } from "../../api/userAPI";
 
 const Navbar = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch()
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [profilePic, setProfilePic] = useState(null);
 
   const toggleDropdown = () => setIsDropdownOpen(!isDropdownOpen);
 
   useEffect(() => {
-    const token = localStorage.getItem("token");;
-    if (token) {
-      try {
-        const decoded = jwtDecode(token);
-        setIsLoggedIn(true);
-      } catch (error) {
-        console.error("Token decoding error:", error);
+    const fetchProfileImage = async () => {
+      const token = localStorage.getItem("token");
+      if (token) {
+        try {
+          jwtDecode(token);
+          setIsLoggedIn(true);
+        } catch (error) {
+          console.error("Token decoding error:", error);
+          setIsLoggedIn(false);
+        }
+      } else {
+        setIsLoggedIn(false);
       }
-    } else {
-      setIsLoggedIn(false);
-    }
+
+      try {
+        const response = await getUserProfile();
+        if (response?.success && response.data?.profileImage) {
+          setProfilePic(response.data.profileImage);
+        }
+      } catch (err) {
+        console.error("Failed to fetch user profile:", err);
+      }
+    };
+
+    fetchProfileImage();
   }, []);
 
   const handleLogout = () => {
@@ -95,7 +110,7 @@ const Navbar = () => {
         ) : (
           <div className="relative">
             <img
-              src={ProfilePic}
+              src={profilePic}
               alt="profile"
               className="w-10 h-10 rounded-full cursor-pointer"
               onClick={toggleDropdown}

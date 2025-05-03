@@ -7,6 +7,7 @@ export const validatorUpdateProfile = z
       .min(3, "Name must be at least 3 characters long")
       .max(50, "Name cannot exceed 50 characters")
       .optional(),
+    profileImage: z.string().optional(),
     specialization: z
       .string()
       .optional(),

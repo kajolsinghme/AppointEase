@@ -62,6 +62,9 @@ const userSchema = new mongoose.Schema(
       enum: [USER_TYPE.DOCTOR, USER_TYPE.PATIENT],
       required: true,
     },
+    profileImage: {
+      type: String,
+    },
     doctorDetails: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "DoctorDetails"

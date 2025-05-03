@@ -30,9 +30,10 @@ export const getProfile = async (req, res) => {
 export const updateProfile = async (req, res) => {
   try {
     const userId = req.user.id;
-    console.log("userId", userId)
+
     const {
       name,
+      profileImage,
       specialization,
       yearsOfExperience,
       mobile,
@@ -44,6 +45,8 @@ export const updateProfile = async (req, res) => {
       illnesses,
     } = req.body;
 
+    console.log("apiimage",profileImage)
+
     const user = await User.findById(userId).populate("doctorDetails");
 
     if (!user) {
@@ -52,6 +55,7 @@ export const updateProfile = async (req, res) => {
 
     // Update common fields
     if (name) user.name = name;
+    if (profileImage) user.profileImage = profileImage;
 
     if (user.role === USER_TYPE.DOCTOR) {
       let doctorDoc;
