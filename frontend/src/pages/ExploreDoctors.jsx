@@ -1,11 +1,13 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import Navbar from "../components/Navbar/Navbar";
 import Footer from "../components/Footer/Footer";
 import BagIcon from "../assets/bag-icon.png";
 import RupeesIcon from "../assets/money-bag-rupee-icon.png";
 import LocationIcon from "../assets/location-icon.png";
 import { useLocation, useNavigate } from "react-router-dom";
-
+import apiClient from "../api/apiClient";
+import { getAllDoctors } from "../api/userAPI";
+/*
 const doctors = [
   {
     id: "1",
@@ -91,7 +93,7 @@ const doctors = [
     ],
     image: "https://randomuser.me/api/portraits/women/44.jpg",
   },
-];
+];*/
 
 // Helper function to get next available day
 const getNextAvailableDay = (availability) => {
@@ -120,9 +122,6 @@ const getNextAvailableDay = (availability) => {
   return "Not Available in the next 7 days";
 };
 
-const allLocations = [...new Set(doctors.map((d) => d.location))];
-const allIllnesses = [...new Set(doctors.flatMap((d) => d.illnesses))];
-
 const ExploreDoctors = () => {
   const location = useLocation();
   const navigate = useNavigate();
@@ -131,12 +130,50 @@ const ExploreDoctors = () => {
   const params = new URLSearchParams(location.search);
   const initialQuery = params.get("query") || "";
 
+  const [doctors, setDoctors] = useState([]);
+
   const [query, setQuery] = useState(initialQuery);
   const [locationFilter, setLocationFilter] = useState("");
   const [illnessFilter, setIllnessFilter] = useState("");
   const [experienceFilter, setExperienceFilter] = useState("");
   const [feesFilter, setFeesFilter] = useState("");
   const [availabilityFilter, setAvailabilityFilter] = useState("");
+
+  useEffect(() => {
+    const fetchDoctors = async () => {
+      try {
+        const data = await getAllDoctors();
+        if (data && Array.isArray(data.data)) {
+          console.log("explore data", data.data);
+
+          // Flatten doctorDetails into the main doctor object
+          const flatDoctors = data.data.map((doc) => ({
+            ...doc,
+            ...doc.doctorDetails, // spread doctorDetails fields to top level
+            id: doc._id 
+          }));
+          
+          console.log("flatDoctors",flatDoctors)
+          setDoctors(flatDoctors);
+        } else {
+          console.error("Unexpected data format:", data);
+        }
+      } catch (err) {
+        console.log("Unable to load doctors", err);
+        setDoctors([]);
+      }
+    };
+    fetchDoctors();
+  }, []);
+
+  const allLocations = useMemo(
+    () => [...new Set(doctors.map((d) => d.city))],
+    [doctors]
+  );
+  const allIllnesses = useMemo(
+    () => [...new Set(doctors.flatMap((d) => d.illnesses))],
+    [doctors]
+  );
 
   const filteredDoctors = useMemo(() => {
     return doctors.filter((doctor) => {
@@ -145,26 +182,26 @@ const ExploreDoctors = () => {
       const matchesQuery =
         !lowerQuery ||
         doctor.name.toLowerCase().includes(lowerQuery) ||
-        doctor.specialty.toLowerCase().includes(lowerQuery) ||
+        doctor.specialization.toLowerCase().includes(lowerQuery) ||
         doctor.illnesses.some((ill) => ill.toLowerCase().includes(lowerQuery));
 
       // Location Filter
       const matchesLocation =
-        !locationFilter || doctor.location === locationFilter;
+        !locationFilter || doctor.city === locationFilter;
 
       // Illness filter
       const matchesIllness =
         !illnessFilter || doctor.illnesses.includes(illnessFilter);
 
       // Experience filter
-      const years = parseInt(doctor.experience);
+      const years = parseInt(doctor.yearsOfExperience);
       let matchesExperience = true;
       if (experienceFilter === "5+") matchesExperience = years >= 5;
       if (experienceFilter === "10+") matchesExperience = years >= 10;
       if (experienceFilter === "15+") matchesExperience = years >= 15;
 
       // Fees filter
-      const fees = parseInt(doctor.fees);
+      const fees = parseInt(doctor.consultationFee);
       let matchesFees = true;
       if (feesFilter === "under300") matchesFees = fees < 300;
       if (feesFilter === "300-500") matchesFees = fees >= 300 && fees <= 500;
@@ -211,6 +248,7 @@ const ExploreDoctors = () => {
       );
     });
   }, [
+    doctors,
     query,
     locationFilter,
     illnessFilter,
@@ -325,14 +363,14 @@ const ExploreDoctors = () => {
               >
                 <div className="flex gap-5">
                   <img
-                    src={doctor.image}
-                    alt="doctor"
-                    className="w-24 h-auto rounded-full shadow-lg"
+                    src={doctor.profileImage}
+                    alt="doctor image"
+                    className="w-24 h-auto rounded-full object-cover border border-gray-300 shadow-lg"
                   />
                   <div className="my-auto">
                     <h1 className="text-lg font-bold">{doctor.name}</h1>
                     <p className="text-gray-700 font-semibold mt-1">
-                      {doctor.specialty}
+                      {doctor.specialization}
                     </p>
                     <p
                       className={
@@ -349,26 +387,24 @@ const ExploreDoctors = () => {
                 <div className="p-4 my-2 font-bold space-y-2">
                   <div className="flex gap-x-2 items-center">
                     <img src={BagIcon} alt="" className="w-7 h-auto" />
-                    <p>{doctor.experience} experience</p>
+                    <p>{doctor.yearsOfExperience} Years of experience</p>
                   </div>
                   <div className="flex gap-x-2 items-center">
                     <img src={RupeesIcon} alt="" className="w-7 h-auto" />
-                    <p>{doctor.fees}</p>
+                    <p>{doctor.consultationFee} per visit</p>
                   </div>
                   <div className="flex gap-x-2 items-center">
                     <img src={LocationIcon} alt="" className="w-7 h-auto" />
-                    <p>{doctor.location}</p>
+                    <p>{doctor.clinicAddress}, {doctor.city}, {doctor.state}</p>
                   </div>
                 </div>
                 <div className="flex justify-start ml-4 mt-2 ">
-                  <button className="bg-purple-600 hover:bg-purple-800 text-white font-bold text-lg py-2 px-5 rounded-lg"
-                  onClick={() => navigate(`/book-appointment/${doctor.id}`)}
+                  <button
+                    className="bg-purple-600 hover:bg-purple-800 text-white font-bold text-lg py-2 px-5 rounded-lg"
+                    onClick={() => navigate(`/book-appointment/${doctor.id}`)}
                   >
                     Book Now
                   </button>
-                  {/* <button className="bg-white hover:bg-gray-100 text-purple-600 border border-gray-500 text-lg font-bold py-2 px-5 rounded-lg">
-                    View Profile
-                  </button> */}
                 </div>
               </div>
             ))}

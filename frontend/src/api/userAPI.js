@@ -46,3 +46,26 @@ export const getDoctorsAvailableToday = async() => {
         console.error("Failed to fetch doctors :", error.response.data)
     }
 }
+
+
+export const getAllDoctors = async() => {
+    try{
+        const response = await apiClient.get("/user/doctors")
+        console.log("Fetched Data", response.data);
+        return response.data
+    }
+    catch(error){
+        console.error("Failed to fetch doctors :", error.response.data)
+    }
+}
+
+export const getDoctorById= async(doctorId) => {
+    try{
+        const response = await apiClient.get(`/user/doctors/${doctorId}`)
+        console.log("data", response.data);
+        return response.data
+    }
+    catch(error){
+        console.error("Failed to fetch doctor :", error.response.data)
+    }
+}

@@ -61,7 +61,7 @@ const DoctorsSection = () => {
                   Consultation Fee: ₹{consultationFee}
                 </p>
                 <button
-                  onClick={() => navigate("/book-appointment")}
+                  onClick={() => navigate(`/book-appointment/${doctor._id}`)}
                   className="mt-4 bg-purple-600 hover:bg-purple-800 text-white font-bold py-2 px-6 rounded-lg"
                 >
                   Book Now

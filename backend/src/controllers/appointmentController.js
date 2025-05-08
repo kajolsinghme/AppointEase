@@ -15,7 +15,7 @@ export const bookAppointment = async (req, res) => {
     const doctor = await User.findById(doctorId);
     const patient = await User.findById(patientId);
 
-    if (!doctor || doctor.role !== "doctor") {
+    if (!doctor || doctor.role !== "Doctor") {
       return res
         .status(404)
         .json({ success: false, message: "Doctor not found" });
@@ -35,7 +35,7 @@ export const bookAppointment = async (req, res) => {
 
     let zoomLink = null;
 
-    if (type === "video-consultation") {
+    if (type === "Video Consultation") {
       zoomLink = await createZoomMeeting(process.env.EMAIL_USER, "Appointment with Patient", scheduledAt)
     }
 
@@ -48,6 +48,7 @@ export const bookAppointment = async (req, res) => {
     });
 
     await appointment.save();
+    console.log("type",type)
 
     // Appointment details for email
     const appointmentDetails = {
@@ -55,18 +56,21 @@ export const bookAppointment = async (req, res) => {
       doctorName: doctor.name,
       scheduledAt: new Date(scheduledAt).toLocaleString(),
       type,
-      location: (type === "in-person" && doctor.doctorDetails.clinicAddress)
+      location: (type === "In Person" && doctor.doctorDetails.clinicAddress)
         ? doctor.doctorDetails.clinicAddress
         : null,
       zoomLink
     };
 
+    console.log(appointmentDetails.location)
     // Send confirmation emails to both the patient and the doctor
     await sendAppointmentConfirmation(
       patient.email,
       doctor.email,
       appointmentDetails
     );
+
+   
 
     return res.status(200).json({
       success: true,

@@ -101,7 +101,7 @@ export const updateProfile = async (req, res) => {
 
 export const getAllDoctors = async (req, res) => {
   try {
-    const doctors = await User.find({ role: "doctor" }).select("-password");
+    const doctors = await User.find({ role: "Doctor" }).select("-password").populate("doctorDetails");
 
     if (doctors.length === 0) {
       return res
@@ -171,9 +171,9 @@ export const getDoctorsAvailableToday = async (req, res) => {
 
 export const getDoctorById = async (req, res) => {
   try {
-    const doctorId = req.params;
+    const doctorId = req.params.doctorId;
 
-    const doctor = await User.findOne({ _id: doctorId, role: "doctor" });
+    const doctor = await User.findOne({ _id: doctorId, role: "Doctor" }).populate("doctorDetails");
 
     if (!doctor) {
       return res

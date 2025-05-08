@@ -12,10 +12,6 @@ const formatAppointmentDate = (dateString) => {
     .replace(",", " at");
 };
 
-const formatAppointmentType = (type) => {
-  return type === "in-person" ? "In Person" : "Video Consultation";
-};
-
 export const patientAppointmentTemplate = (appointmentDetails) => {
   const { patientName, doctorName, scheduledAt, type, location, zoomLink } =
     appointmentDetails;
@@ -42,7 +38,7 @@ export const patientAppointmentTemplate = (appointmentDetails) => {
       <p class="details">📅 Date & Time: ${formatAppointmentDate(
         scheduledAt
       )}</p>
-      <p class="details">📍 Type: ${formatAppointmentType(type)}</p>
+      <p class="details">📍 Type: ${type}</p>
       ${
         location != null
           ? `<p class="details">📍 Location: ${location}</p>`
@@ -54,7 +50,7 @@ export const patientAppointmentTemplate = (appointmentDetails) => {
           : ""
       }
       <p>${
-        type === "video-consultation"
+        type === "Video Consultation"
           ? "Please ensure you have a stable internet connection and join the meeting a few minutes early to avoid any last-minute issues."
           : "Please ensure to arrive on time at the scheduled location. If you have any questions or need to reschedule, feel free to contact us."
       }
@@ -96,7 +92,7 @@ export const doctorAppointmentTemplate = (appointmentDetails) => {
       <p class="details">📅 Date & Time: ${formatAppointmentDate(
         scheduledAt
       )}</p>
-      <p class="details">📍 Type: ${formatAppointmentType(type)}</p>
+      <p class="details">📍 Type: ${type}</p>
       ${location ? `<p class="details">📍 Location: ${location}</p>` : ""}
       ${
         zoomLink

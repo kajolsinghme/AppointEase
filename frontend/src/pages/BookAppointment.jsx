@@ -1,14 +1,16 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import Navbar from "../components/Navbar/Navbar";
 import Footer from "../components/Footer/Footer";
 import BagIcon from "../assets/bag-icon.png";
 import RupeesIcon from "../assets/money-bag-rupee-icon.png";
 import LocationIcon from "../assets/location-icon.png";
+import { getDoctorById } from "../api/userAPI";
+import { bookAppointment } from "../api/appointmentAPI";
 
 const doctors = [
   {
-    id: "1",
+    id: "6815436df342b5a6edbeef0f",
     name: "Dr. Keaya Joseph",
     specialty: "Neurologist",
     experience: "10 years",
@@ -25,50 +27,170 @@ const doctors = [
     hospital: "Memorial Hospital, New York",
     videoConsultation: true,
   },
-
 ];
 
-// Helper to get next 4 days from today
-const getNextNDays = (n = 4) => {
-  const days = [];
-  const options = { weekday: "short", day: "2-digit", month: "short" };
-  for (let i = 0; i < n; i++) {
-    const date = new Date();
-    date.setDate(date.getDate() + i);
-    days.push({
-      label: date.toLocaleDateString("en-US", options),
-      date: date,
-      dayName: date.toLocaleDateString("en-US", { weekday: "long" }),
-    });
+// Helper function to get next available day
+const checkDoctorAvailability = (availability) => {
+  const weekdays = [
+    "Sunday",
+    "Monday",
+    "Tuesday",
+    "Wednesday",
+    "Thursday",
+    "Friday",
+    "Saturday",
+  ];
+  const todayIdx = new Date().getDay();
+
+  for (let i = 0; i < 7; i++) {
+    const dayIdx = (todayIdx + i) % 7;
+    const dayName = weekdays[dayIdx];
+    const isAvailable = availability.some((slot) => slot.day === dayName);
+
+    if (isAvailable) {
+      if (i === 0) return "Available Today";
+      if (i === 1) return "Available Tomorrow";
+      return `Available on ${dayName}`;
+    }
   }
-  return days;
+  return "Not Available in the next 7 days";
 };
-
-const allSlots = [
-  "09:00 AM", "09:30 AM", "10:00 AM", "10:30 AM",
-  "11:00 AM", "11:30 AM", "02:00 PM", "02:30 PM"
-];
 
 const BookAppointment = () => {
   const { doctorId } = useParams();
-  const doctor = doctors.find((doc) => doc.id === doctorId);
-
+  const [doctorData, setDoctorData] = useState(null);
   const [selectedDayIdx, setSelectedDayIdx] = useState(0);
-  const [selectedSlot, setSelectedSlot] = useState("09:00 AM");
-  const [appointmentType, setAppointmentType] = useState("in-person");
+  const [selectedSlot, setSelectedSlot] = useState("10:00 AM");
+  const [appointmentType, setAppointmentType] = useState("In Person");
 
-  const nextDays = getNextNDays(4);
+  useEffect(() => {
+    const fetchDoctorById = async () => {
+      try {
+        const response = await getDoctorById(doctorId);
+        if (response.success) {
+          console.log("doctor details", response.data);
+          setDoctorData(response.data);
+        } else {
+          console.error("Unexpected data format:", data);
+          setDoctorData(null);
+        }
+      } catch (error) {
+        console.error("Failed to fetch doctor data", error);
+      }
+    };
+    fetchDoctorById();
+  }, []);
 
-  if (!doctor) {
+  // Helper to get next n days from today
+  const getNextNDays = (n) => {
+    const days = [];
+    const options = { weekday: "short", day: "2-digit", month: "short" };
+    for (let i = 0; i < n; i++) {
+      const date = new Date();
+      date.setDate(date.getDate() + i);
+      days.push({
+        label: date.toLocaleDateString("en-US", options),
+        date: date,
+        dayName: date.toLocaleDateString("en-US", { weekday: "long" }),
+      });
+    }
+    return days;
+  };
+  const nextDays = getNextNDays(7);
+
+  const availableDayNames = doctorData?.doctorDetails?.availability.map(
+    (slot) => slot.day
+  );
+
+  const availableNextDays = nextDays.filter((day) =>
+    availableDayNames?.includes(day.dayName)
+  );
+
+  function timeToMinutes(timeStr) {
+    if (!timeStr) return 0;
+    const [time, period] = timeStr.split(" ");
+    let [hours, minutes] = time.split(":").map(Number);
+    if (period === "PM" && hours !== 12) hours += 12;
+    if (period === "AM" && hours === 12) hours = 0;
+    return hours * 60 + minutes;
+  }
+
+  // Function to get available slots
+  function generateSlots(startTime, endTime) {
+    const slots = [];
+    let start = timeToMinutes(startTime);
+    const end = timeToMinutes(endTime);
+    while (start < end) {
+      const h = Math.floor(start / 60);
+      const m = start % 60;
+      const period = h >= 12 ? "PM" : "AM";
+      const hour12 = h % 12 === 0 ? 12 : h % 12;
+      const label = `${hour12.toString().padStart(2, "0")}:${m
+        .toString()
+        .padStart(2, "0")} ${period}`;
+      slots.push(label);
+      start += 30;
+    }
+    return slots;
+  }
+
+  // Get the selected day's name
+  const selectedDayName = availableNextDays[selectedDayIdx]?.dayName;
+
+  // Find availability for that day
+  const dayAvailability = doctorData?.doctorDetails?.availability.find(
+    (slot) => slot.day === selectedDayName
+  );
+
+  // Generate slots for that day
+  const availableSlots = dayAvailability
+    ? generateSlots(dayAvailability.startTime, dayAvailability.endTime)
+    : [];
+
+  if (!doctorData) {
     return (
       <>
         <Navbar />
         <div className="min-h-screen flex items-center justify-center">
-          <p className="text-2xl font-bold text-red-600">Doctor not found.</p>
+          <p className="text-2xl font-bold text-red-600">Doctor not found</p>
         </div>
         <Footer />
       </>
     );
+  }
+
+  const handleBookAppointment = async() => {
+    try{
+      if (!selectedSlot) {
+        alert("Please select a time slot");
+        return;
+      }
+
+      const selectedDay = availableNextDays[selectedDayIdx]?.date
+
+      const [time, period] = selectedSlot.split(" ")
+      let [hours, minutes] = time.split(":").map(Number)
+      
+      // Convert to 24-hour format
+      if (period === "PM" && hours !== 12) hours += 12
+      if (period === "AM" && hours === 12) hours = 0
+
+      const appointmentDate = new Date(selectedDay);
+      appointmentDate.setHours(hours, minutes, 0, 0);
+
+       // Format to ISO string 
+       const appointmentDateTime = appointmentDate.toISOString()
+
+      const response = await bookAppointment({
+        doctorId: doctorId,
+        scheduledAt: appointmentDateTime,
+        type: appointmentType
+      })
+      console.log(response)
+    }
+    catch(error){
+      console.log("Failed to book the appointment", error);
+    }
   }
 
   return (
@@ -80,47 +202,58 @@ const BookAppointment = () => {
           <div className="w-full md:w-[450px] h-[270px] px-5 py-7 bg-white rounded-2xl shadow-lg mb-8 md:mb-0">
             <div className="flex items-center gap-6">
               <img
-                src={doctor.image}
-                alt={doctor.name}
-                className="w-24 h-24 rounded-full object-cover"
+                src={doctorData.profileImage}
+                alt={doctorData.name}
+                className="w-28 h-28 rounded-full object-cover"
               />
               <div>
-                <h1 className="text-2xl font-bold mb-1">{doctor.name}</h1>
+                <h1 className="text-2xl font-bold mb-1">{doctorData.name}</h1>
                 <p className="text-lg font-semibold text-gray-700">
-                  {doctor.specialty}
+                  {doctorData.doctorDetails.specialization}
                 </p>
               </div>
             </div>
             <div className="p-3 my-2 font-bold text-lg space-y-2">
               <div className="flex gap-x-2 items-center">
                 <img src={LocationIcon} alt="" className="w-5 h-5" />
-                <span>{doctor.hospital}</span>
+                <span>
+                  {doctorData.doctorDetails.clinicAddress},{" "}
+                  {doctorData.doctorDetails.city},{" "}
+                  {doctorData.doctorDetails.state}
+                </span>
               </div>
               <div className="flex gap-x-2 items-center text-green-700">
                 <span>✔</span>
-                <span>Available Today</span>
+                <span>
+                  {checkDoctorAvailability(
+                    doctorData.doctorDetails.availability
+                  )}
+                </span>
               </div>
-              {doctor.videoConsultation && (
-                <div className="flex gap-x-2 items-center text-purple-700">
-                  <span>🎥</span>
-                  <span>Video Consultation Available</span>
-                </div>
-              )}
+
+              <div className="flex gap-x-2 items-center text-purple-700">
+                <span>🎥</span>
+                <span>Video Consultation Available</span>
+              </div>
             </div>
           </div>
 
           {/* Appointment Selection Card */}
           <div className="w-full md:w-[820px] px-6 py-7 bg-white rounded-2xl shadow-lg">
-            <h1 className="text-2xl font-bold mb-6">Select Appointment Date & Time</h1>
+            <h1 className="text-2xl font-bold mb-6">
+              Select Appointment Date & Time
+            </h1>
             {/* Date selection */}
-            <div className="flex gap-3 mb-10">
-              {nextDays.map((d, idx) => (
+            <div className="flex gap-7 mb-10">
+              {availableNextDays.map((d, idx) => (
                 <button
                   key={idx}
-                  className={`flex flex-col items-center px-4 py-2 rounded-lg border-2 font-semibold
-                    ${selectedDayIdx === idx
-                      ? "bg-purple-600 text-white border-purple-600"
-                      : "bg-white text-black border-gray-300"}
+                  className={`flex flex-col items-center px-6 py-2 rounded-lg border-2 font-semibold
+                    ${
+                      selectedDayIdx === idx
+                        ? "bg-purple-600 text-white border-purple-600"
+                        : "bg-white text-black border-gray-300"
+                    }
                   `}
                   onClick={() => setSelectedDayIdx(idx)}
                 >
@@ -132,13 +265,15 @@ const BookAppointment = () => {
             </div>
             {/* Time slot selection */}
             <div className="grid grid-cols-4 gap-4 mb-10">
-              {allSlots.map((slot) => (
+              {availableSlots.map((slot) => (
                 <button
                   key={slot}
                   className={`py-2 rounded-lg border-2 font-semibold
-                    ${selectedSlot === slot
-                      ? "bg-purple-600 text-white border-purple-600"
-                      : "bg-white text-black border-gray-300"}
+                    ${
+                      selectedSlot === slot
+                        ? "bg-purple-600 text-white border-purple-600"
+                        : "bg-white text-black border-gray-300"
+                    }
                   `}
                   onClick={() => setSelectedSlot(slot)}
                 >
@@ -152,29 +287,35 @@ const BookAppointment = () => {
               <div className="flex gap-4">
                 <button
                   className={`flex items-center gap-2 px-6 py-2 rounded-lg border-2 font-semibold
-                    ${appointmentType === "in-person"
-                      ? "bg-purple-600 text-white border-purple-600"
-                      : "bg-white text-black border-gray-300"}
+                    ${
+                      appointmentType === "In Person"
+                        ? "bg-purple-600 text-white border-purple-600"
+                        : "bg-white text-black border-gray-300"
+                    }
                   `}
-                  onClick={() => setAppointmentType("in-person")}
+                  onClick={() => setAppointmentType("In Person")}
                 >
                   <span>👤</span> In-Person Visit
                 </button>
                 <button
                   className={`flex items-center gap-2 px-6 py-2 rounded-lg border-2 font-semibold
-                    ${appointmentType === "video"
-                      ? "bg-purple-600 text-white border-purple-600"
-                      : "bg-white text-black border-gray-300"}
+                    ${
+                      appointmentType === "Video Consultation"
+                        ? "bg-purple-600 text-white border-purple-600"
+                        : "bg-white text-black border-gray-300"
+                    }
                   `}
-                  onClick={() => setAppointmentType("video")}
+                  onClick={() => setAppointmentType("Video Consultation")}
                 >
                   <span>🎥</span> Video Consultation
                 </button>
               </div>
             </div>
-            {/* Confirm Button */}
-            <button className="w-full py-3 rounded-lg font-bold text-lg bg-purple-600 text-white hover:bg-purple-700 transition">
-              Confirm Appointment
+
+            <button className="w-full py-3 rounded-lg font-bold text-lg bg-purple-600 text-white hover:bg-purple-700 transition"
+            onClick={handleBookAppointment}>
+              
+              Book Appointment
             </button>
           </div>
         </div>
