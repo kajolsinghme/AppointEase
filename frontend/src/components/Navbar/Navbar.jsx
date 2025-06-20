@@ -12,6 +12,7 @@ const Navbar = () => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [profilePic, setProfilePic] = useState("https://i.postimg.cc/Dz99WDqt/user.png");
+  const [loading, setLoading] = useState(true);
 
   const toggleDropdown = () => setIsDropdownOpen(!isDropdownOpen);
 
@@ -19,14 +20,16 @@ const Navbar = () => {
     console.log("navbar useffect");
     const fetchProfileImage = async () => {
       const token = localStorage.getItem("token");
+      
       if (token) {
         try {
+          console.log("token",token)
           jwtDecode(token);
           setIsLoggedIn(true);
           const response = await getUserProfile();
-          console.log("navbar image", response)
+          console.log("navbar image", response.data.profileImage)
           if (response?.success && response.data?.profileImage) {
-            setProfilePic(response.data.profileImage);
+           setProfilePic(response.data.profileImage);
           }
         } catch (error) {
           console.error("Token decoding error:", error);
@@ -35,10 +38,11 @@ const Navbar = () => {
       } else {
         setIsLoggedIn(false);
       }
+      setLoading(false);
     };
 
     fetchProfileImage();
-  }, []);
+  }, [localStorage.getItem("token")]);
 
   const handleLogout = () => {
     dispatch(logout());
@@ -97,7 +101,7 @@ const Navbar = () => {
       </div>
 
       <div className="flex items-center space-x-4 relative">
-        {!isLoggedIn ? (
+        {loading ? (null) : !isLoggedIn ? (
           <button
             className="bg-purple-600 hover:bg-purple-800 text-white font-bold py-3 px-8 rounded-lg"
             onClick={() => navigate("/login")}
