@@ -4,6 +4,9 @@ import { useDispatch, useSelector } from "react-redux";
 import Navbar from "../Navbar/Navbar";
 import Footer from "../Footer/Footer";
 import { login } from "../../store/auth/authSlice";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
 
 const Login = () => {
   const dispatch = useDispatch();
@@ -19,11 +22,24 @@ const Login = () => {
 
       if (login.fulfilled.match(resultAction)) {
         console.log("Login successful:", resultAction.payload);
+        toast.success("Login successful!", {
+          position: "top-right",
+          autoClose: 3000,
+        });
         navigate("/");
       } else {
-        console.error("Login failed:", resultAction.payload);
+        const serverMessage =
+          resultAction?.payload?.message || "Invalid credentials.";
+        toast.error(serverMessage, {
+          position: "top-right",
+          autoClose: 3000,
+        });
       }
     } catch (err) {
+      toast.error("Something went wrong. Please try again later.", {
+        position: "top-right",
+        autoClose: 3000,
+      });
       console.error("Something went wrong:", err);
     }
   };
@@ -79,7 +95,6 @@ const Login = () => {
                 Signup
               </a>
             </p>
-            {error && <p className="text-red-600">{error}</p>}
           </form>
         </div>
       </div>

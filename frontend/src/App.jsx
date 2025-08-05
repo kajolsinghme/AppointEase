@@ -7,12 +7,21 @@ import BookAppointment from "./pages/BookAppointment";
 import Login from "./components/Auth/Login";
 import Profile from "./pages/Profile";
 import Signup from "./components/Auth/Signup";
+import {ToastContainer} from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 function App() {
   return (
     <BrowserRouter>
       <ScrollToTop />
-
+      <ToastContainer 
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        closeOnClick
+        pauseOnHover
+        draggable
+        theme="colored"/>
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/explore-doctors" element={<ExploreDoctors />} />

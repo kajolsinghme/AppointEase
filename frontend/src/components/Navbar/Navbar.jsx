@@ -17,32 +17,37 @@ const Navbar = () => {
   const toggleDropdown = () => setIsDropdownOpen(!isDropdownOpen);
 
   useEffect(() => {
-    console.log("navbar useffect");
     const fetchProfileImage = async () => {
       const token = localStorage.getItem("token");
-      
+  
       if (token) {
         try {
-          console.log("token",token)
-          jwtDecode(token);
+          const decoded = jwtDecode(token);
+          if (decoded.exp * 1000 < Date.now()) { 
+            throw new Error("Token expired");
+          }
+  
           setIsLoggedIn(true);
           const response = await getUserProfile();
-          console.log("navbar image", response.data.profileImage)
           if (response?.success && response.data?.profileImage) {
-           setProfilePic(response.data.profileImage);
+            setProfilePic(response.data.profileImage);
           }
         } catch (error) {
-          console.error("Token decoding error:", error);
+          console.error("Token error or fetch failed:", error);
           setIsLoggedIn(false);
+          dispatch(logout());
+          localStorage.removeItem("token");
         }
       } else {
         setIsLoggedIn(false);
       }
+  
       setLoading(false);
     };
-
+  
     fetchProfileImage();
-  }, [localStorage.getItem("token")]);
+  }, []);
+  
 
   const handleLogout = () => {
     dispatch(logout());

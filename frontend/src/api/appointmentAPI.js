@@ -3,7 +3,7 @@ import apiClient from "./apiClient"
 export const bookAppointment = async (data) => {
     try{
         const response = await apiClient.post("/appointments", data)
-        console.log(response.data)
+        console.log("Hello",response.data)
         return response
     }
     catch(error){

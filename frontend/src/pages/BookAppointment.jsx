@@ -7,6 +7,8 @@ import RupeesIcon from "../assets/money-bag-rupee-icon.png";
 import LocationIcon from "../assets/location-icon.png";
 import { getDoctorById } from "../api/userAPI";
 import { bookAppointment } from "../api/appointmentAPI";
+import { toast } from "react-toastify";
+
 
 const doctors = [
   {
@@ -162,7 +164,7 @@ const BookAppointment = () => {
   const handleBookAppointment = async() => {
     try{
       if (!selectedSlot) {
-        alert("Please select a time slot");
+        toast.warn("Please select a time slot");
         return;
       }
 
@@ -186,10 +188,17 @@ const BookAppointment = () => {
         scheduledAt: appointmentDateTime,
         type: appointmentType
       })
-      console.log(response)
+      if(response?.success){
+        toast.success("Appointment booked successfully");
+        setSelectedSlot("");
+      }
+      else{
+        toast.error(response?.message || "Something went wrong");
+      }
     }
     catch(error){
       console.log("Failed to book the appointment", error);
+      toast.error("Booking failed. Please try again.");
     }
   }
 

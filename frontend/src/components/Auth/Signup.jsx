@@ -4,6 +4,8 @@ import Footer from "../Footer/Footer";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { signup } from "../../store/auth/authSlice";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const Signup = () => {
   const [formData, setFormData] = useState({
@@ -12,23 +14,35 @@ const Signup = () => {
     password: "",
     role: "Patient",
   });
-  const {loading, data, error} = useSelector((state) => state.auth)
-  const dispatch = useDispatch()
-  const navigate = useNavigate()
+  const { loading, data, error } = useSelector((state) => state.auth);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const handleSignup = async (e) => {
     e.preventDefault();
-    try{
-      const resultAction = await dispatch(signup({...formData}))
-      if(signup.fulfilled.match(resultAction)){
-        console.log('Signup successful:', resultAction.payload)
-        navigate('/login')
-      }
-      else{
+    try {
+      const resultAction = await dispatch(signup({ ...formData }));
+      if (signup.fulfilled.match(resultAction)) {
+        toast.success("Signup successful! Please log in.", {
+          position: "top-right",
+          autoClose: 3000,
+        });
+        console.log("Signup successful:", resultAction.payload);
+        navigate("/login");
+      } else {
+        const serverMessage =
+          resultAction?.payload?.message || "Signup failed. Try again.";
+        toast.error(serverMessage, {
+          position: "top-right",
+          autoClose: 3000,
+        });
         console.error("Signup failed:", resultAction.payload);
       }
-    }
-    catch(error){
+    } catch (error) {
+      toast.error("Something went wrong. Please try again later.", {
+        position: "top-right",
+        autoClose: 3000,
+      });
       console.error("Something went wrong:", error);
     }
   };
@@ -104,14 +118,20 @@ const Signup = () => {
               </select>
             </div>
             <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-purple-600 text-white py-2 font-bold rounded-lg hover:bg-purple-800 transition duration-200"
+              type="submit"
+              disabled={loading}
+              className="w-full bg-purple-600 text-white py-2 font-bold rounded-lg hover:bg-purple-800 transition duration-200"
             >
               Sign up
             </button>
             <p className="text-center text-lg text-gray-600 mt-2">
-              Already have an account? <a href="/login" className="text-purple-700 font-medium hover:underline">Login</a>
+              Already have an account?{" "}
+              <a
+                href="/login"
+                className="text-purple-700 font-medium hover:underline"
+              >
+                Login
+              </a>
             </p>
             {error && <p className="text-red-600">{error}</p>}
           </form>
