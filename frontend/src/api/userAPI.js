@@ -27,7 +27,9 @@ export const uploadProfileImage = async(formData) => {
     try{
         const response  = apiClient.post("/upload", formData,{headers: {
             "Content-Type": "multipart/form-data",
-          }})
+          },
+          timeout: 30000,
+        })
         
         return response
     }

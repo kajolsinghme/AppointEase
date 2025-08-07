@@ -8,7 +8,7 @@ import LocationIcon from "../assets/location-icon.png";
 import { getDoctorById } from "../api/userAPI";
 import { bookAppointment } from "../api/appointmentAPI";
 import { toast } from "react-toastify";
-
+import "react-toastify/dist/ReactToastify.css";
 
 const doctors = [
   {
@@ -62,7 +62,7 @@ const BookAppointment = () => {
   const { doctorId } = useParams();
   const [doctorData, setDoctorData] = useState(null);
   const [selectedDayIdx, setSelectedDayIdx] = useState(0);
-  const [selectedSlot, setSelectedSlot] = useState("10:00 AM");
+  const [selectedSlot, setSelectedSlot] = useState(null);
   const [appointmentType, setAppointmentType] = useState("In Person");
 
   useEffect(() => {
@@ -161,46 +161,45 @@ const BookAppointment = () => {
     );
   }
 
-  const handleBookAppointment = async() => {
-    try{
+  const handleBookAppointment = async () => {
+    try {
       if (!selectedSlot) {
         toast.warn("Please select a time slot");
         return;
       }
 
-      const selectedDay = availableNextDays[selectedDayIdx]?.date
+      const selectedDay = availableNextDays[selectedDayIdx]?.date;
 
-      const [time, period] = selectedSlot.split(" ")
-      let [hours, minutes] = time.split(":").map(Number)
-      
+      const [time, period] = selectedSlot.split(" ");
+      let [hours, minutes] = time.split(":").map(Number);
+
       // Convert to 24-hour format
-      if (period === "PM" && hours !== 12) hours += 12
-      if (period === "AM" && hours === 12) hours = 0
+      if (period === "PM" && hours !== 12) hours += 12;
+      if (period === "AM" && hours === 12) hours = 0;
 
       const appointmentDate = new Date(selectedDay);
       appointmentDate.setHours(hours, minutes, 0, 0);
 
-       // Format to ISO string 
-       const appointmentDateTime = appointmentDate.toISOString()
+      // Format to ISO string
+      const appointmentDateTime = appointmentDate.toISOString();
 
       const response = await bookAppointment({
         doctorId: doctorId,
         scheduledAt: appointmentDateTime,
-        type: appointmentType
-      })
-      if(response?.success){
+        type: appointmentType,
+      });
+      console.log("API Response:", response);
+      if (response?.data?.success) {
         toast.success("Appointment booked successfully");
         setSelectedSlot("");
       }
-      else{
-        toast.error(response?.message || "Something went wrong");
-      }
+    } catch (error) {
+      console.error("Failed to book appointment", error);
+      const errorMessage =
+        error?.response?.data?.message || "Booking failed. Please try again.";
+      toast.error(errorMessage);
     }
-    catch(error){
-      console.log("Failed to book the appointment", error);
-      toast.error("Booking failed. Please try again.");
-    }
-  }
+  };
 
   return (
     <>
@@ -208,7 +207,7 @@ const BookAppointment = () => {
       <div className="bg-gray-100 min-h-screen py-10 px-4 md:px-20">
         <div className="flex flex-col md:flex-row justify-around">
           {/* Doctor Card */}
-          <div className="w-full md:w-[450px] h-[270px] px-5 py-7 bg-white rounded-2xl shadow-lg mb-8 md:mb-0">
+          <div className="w-full md:w-[450px] h-[310px] px-5 py-7 bg-white rounded-2xl shadow-lg mb-8 md:mb-0">
             <div className="flex items-center gap-6">
               <img
                 src={doctorData.profileImage}
@@ -321,9 +320,10 @@ const BookAppointment = () => {
               </div>
             </div>
 
-            <button className="w-full py-3 rounded-lg font-bold text-lg bg-purple-600 text-white hover:bg-purple-700 transition"
-            onClick={handleBookAppointment}>
-              
+            <button
+              className="w-full py-3 rounded-lg font-bold text-lg bg-purple-600 text-white hover:bg-purple-700 transition"
+              onClick={handleBookAppointment}
+            >
               Book Appointment
             </button>
           </div>

@@ -1,12 +1,15 @@
-import apiClient from "./apiClient"
+import apiClient from "./apiClient";
 
 export const bookAppointment = async (data) => {
-    try{
-        const response = await apiClient.post("/appointments", data)
-        console.log("Hello",response.data)
-        return response
-    }
-    catch(error){
-        console.log("Failed to book appointment", error.response.data)
-    }
-}
+  try {
+    const response = await apiClient.post("/appointments", data);
+    console.log("Appointment booked:", response.data);
+    return response;
+  } catch (error) {
+    console.error(
+      "Failed to book appointment:",
+      error?.response?.data || error.message
+    );
+    throw error;
+  }
+};

@@ -29,7 +29,7 @@ export const bookAppointment = async (req, res) => {
     if (existingAppointment) {
       return res.status(409).json({
         success: false,
-        message: "Doctor is already booked for this time slot",
+        message: "This appointment time is already booked. Please choose a different time",
       });
     }
 
@@ -48,7 +48,6 @@ export const bookAppointment = async (req, res) => {
     });
 
     await appointment.save();
-    console.log("type",type)
 
     // Appointment details for email
     const appointmentDetails = {
@@ -62,7 +61,6 @@ export const bookAppointment = async (req, res) => {
       zoomLink
     };
 
-    console.log(appointmentDetails.location)
     // Send confirmation emails to both the patient and the doctor
     await sendAppointmentConfirmation(
       patient.email,

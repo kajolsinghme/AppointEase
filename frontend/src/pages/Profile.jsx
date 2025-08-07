@@ -3,6 +3,8 @@ import Navbar from "../components/Navbar/Navbar";
 import Footer from "../components/Footer/Footer";
 import { MultiSelect } from "@mantine/core";
 import { getUserProfile, updateUserProfile, uploadProfileImage } from "../api/userAPI";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const options = [
   { label: "Diabetes", value: "diabetes" },
@@ -93,9 +95,11 @@ const Profile = () => {
         console.log("updatedProfile", updatedProfile);
         const response = await updateUserProfile(updatedProfile);
         console.log(response);
+        toast.success("Profile updated successfully!")
         setIsEditing(false);
       } catch (err) {
         console.log("Failed to update the user profile:", err);
+        toast.error("Failed to update profile. Please try again.");
       }
     } else {
       setIsEditing(true);
@@ -134,8 +138,10 @@ const Profile = () => {
 
       await updateUserProfile({profileImage: imageUrl})
       setImagePreview(imageUrl)
+      toast.success("Profile image updated successfully!");
     } catch (error) {
       console.error("Image upload failed or profile update failed:", error);
+      toast.error("Failed to upload image. Please try again.");
     } finally {
       setImageUploading(false);
     }
