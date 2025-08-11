@@ -3,7 +3,8 @@ import axios from "axios";
 //create an axios instance
 
 const apiClient = axios.create({
-  baseURL: "http://localhost:5000/api",
+  baseURL:
+    import.meta.env[`VITE_APP_BASE_URL_${import.meta.env.MODE.toUpperCase()}`],
   timeout: 10000,
 });
 
@@ -11,7 +12,7 @@ const apiClient = axios.create({
 apiClient.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem("token");
-    console.log("token",token)
+    console.log("token", token);
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
