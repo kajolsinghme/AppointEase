@@ -125,7 +125,7 @@ Frontend:
 
 ```bash
 cd frontend
-npm start
+npm run dev
 ```
 
 Frontend will run at `http://localhost:5173` and backend at `http://localhost:5000`.
@@ -141,7 +141,7 @@ Frontend will run at `http://localhost:5173` and backend at `http://localhost:50
 ## 📧 Contact
 
 **Author:** Kajol Singh
-GitHub: [kajolsinghme](https://github.com/kajolsinghme)
+**GitHub:** [kajolsinghme](https://github.com/kajolsinghme)
 
 ```
 
