@@ -1,4 +1,3 @@
-```markdown
 # AppointEase
 
 **AppointEase** is a full-stack web application that simplifies doctor-patient appointment scheduling.  
