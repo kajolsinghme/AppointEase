@@ -8,14 +8,14 @@ The platform also supports **Zoom consultations**, email notifications, and real
 
 ## 🚀 Features
 
-1️⃣ **User Authentication** – Patients & doctors can register and log in. 
-2️⃣ **Doctor Profiles** – Display specialization and availability. 
-3️⃣ **Availability Management** – Doctors can set and update their working hours and time slots.
-4️⃣ **Appointment Booking** – Patients can select a doctor, date, and time. 
-5️⃣ **Rescheduling & Cancellation** – Patients can modify or cancel bookings. 
-6️⃣ **Email Notifications** – Confirmation, rescheduling, and reminders via **Nodemailer**. 
-7️⃣ **Doctor Dashboard** – Doctors can view upcoming appointments & manage availability.  
-8️⃣ **Zoom Integration** – Patients and doctors can have **Zoom video consultations**. 
+**User Authentication** – Patients & doctors can register and log in. 
+**Doctor Profiles** – Display specialization and availability. 
+**Availability Management** – Doctors can set and update their working hours and time slots.
+**Appointment Booking** – Patients can select a doctor, date, and time. 
+**Rescheduling & Cancellation** – Patients can modify or cancel bookings. 
+**Email Notifications** – Confirmation, rescheduling, and reminders via **Nodemailer**. 
+**Doctor Dashboard** – Doctors can view upcoming appointments & manage availability.  
+**Zoom Integration** – Patients and doctors can have **Zoom video consultations**. 
 
 ---
 
@@ -101,11 +101,15 @@ In the **backend** `.env` file:
 ```
 PORT=5000
 MONGO_URI=your_mongodb_connection_string
-JWT_SECRET=your_jwt_secret
-EMAIL_USER=your_email@example.com
-EMAIL_PASS=your_email_password
-ZOOM_API_KEY=your_zoom_api_key
-ZOOM_API_SECRET=your_zoom_api_secret
+JWT_SECRET=your_jwt_secret_key
+EMAIL_USER=your_email_address
+EMAIL_PASS=your_email_app_password
+ZOOM_ACCOUNT_ID=your_zoom_account_id
+ZOOM_CLIENT_ID=your_zoom_client_id
+ZOOM_CLIENT_SECRET=your_zoom_client_secret
+CLOUDINARY_CLOUD_NAME=your_cloudinary_cloud_name
+CLOUDINARY_API_KEY=your_cloudinary_api_key
+CLOUDINARY_API_SECRET=your_cloudinary_api_secret
 ```
 
 ### 4️⃣ Run the application
@@ -124,29 +128,13 @@ cd frontend
 npm start
 ```
 
-Frontend will run at `http://localhost:3000` and backend at `http://localhost:5000`.
+Frontend will run at `http://localhost:5173` and backend at `http://localhost:5000`.
 
 ---
 
 ## 🌐 Live Demo
 
 [**AppointEase Live**](https://appoint-ease-kappa.vercel.app)
-
----
-
-## 🤝 Contributing
-
-1. Fork the repo
-2. Create a new branch (`feature/your-feature-name`)
-3. Commit changes
-4. Push to your branch
-5. Open a Pull Request
-
----
-
-## 📜 License
-
-This project is licensed under the MIT License.
 
 ---
 
