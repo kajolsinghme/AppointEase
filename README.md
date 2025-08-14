@@ -1,22 +1,26 @@
+```markdown
 # AppointEase
 
 **AppointEase** is a full-stack web application that simplifies doctor-patient appointment scheduling.  
 Patients can easily find and book doctors based on specialization and availability, while doctors can manage their schedules effortlessly.  
 The platform also supports **Zoom consultations**, email notifications, and real-time updates.
 
-## Features
+---
 
-1. **User Authentication** – Patients & doctors can register and log in.
-2. **Doctor Profiles** – Display specialization and availability.
-3. **Availability Management** – Doctors can set and update their working hours and time slots.
-4. **Appointment Booking** – Patients can select a doctor, date, and time.
-5. **Rescheduling & Cancellation** – Patients can modify or cancel bookings.
-6. **Email Notifications** – Confirmation, rescheduling, and reminders via **Nodemailer**.
-7. **Doctor Dashboard** – Doctors can view upcoming appointments & manage availability.
-8. **Zoom Integration** – Patients and doctors can have **Zoom video consultations**.
+## 🚀 Features
 
+1️⃣ **User Authentication** – Patients & doctors can register and log in. 
+2️⃣ **Doctor Profiles** – Display specialization and availability. 
+3️⃣ **Availability Management** – Doctors can set and update their working hours and time slots.
+4️⃣ **Appointment Booking** – Patients can select a doctor, date, and time. 
+5️⃣ **Rescheduling & Cancellation** – Patients can modify or cancel bookings. 
+6️⃣ **Email Notifications** – Confirmation, rescheduling, and reminders via **Nodemailer**. 
+7️⃣ **Doctor Dashboard** – Doctors can view upcoming appointments & manage availability.  
+8️⃣ **Zoom Integration** – Patients and doctors can have **Zoom video consultations**. 
 
-## Tech Stack
+---
+
+## 🛠 Tech Stack
 
 **Frontend**
 - React.js
@@ -34,6 +38,7 @@ The platform also supports **Zoom consultations**, email notifications, and real
 - Frontend: Vercel
 - Backend: Heroku
 
+---
 
 ## 📂 Project Structure
 
@@ -44,7 +49,6 @@ AppointEase/
 ├── backend/         # Server-side APIs, DB models, authentication, integrations
 ├── frontend/        # Client-side UI, components, pages, and services
 ├── README.md        # Project documentation
-└── package.json     # Root package config (if applicable)
 
 ````
 
@@ -91,10 +95,11 @@ cd ../backend
 npm install
 ```
 
-### Setup environment variables
+### 3️⃣ Setup environment variables
 
 In the **backend** `.env` file:
 
+```
 PORT=5000
 MONGO_URI=your_mongodb_connection_string
 JWT_SECRET=your_jwt_secret
@@ -102,18 +107,23 @@ EMAIL_USER=your_email@example.com
 EMAIL_PASS=your_email_password
 ZOOM_API_KEY=your_zoom_api_key
 ZOOM_API_SECRET=your_zoom_api_secret
+```
 
-### Run the application
+### 4️⃣ Run the application
 
-#### Backend:
+Backend:
 
+```bash
 cd backend
 npm run dev
+```
 
-#### Frontend:
+Frontend:
 
+```bash
 cd frontend
 npm start
+```
 
 Frontend will run at `http://localhost:3000` and backend at `http://localhost:5000`.
 
@@ -135,7 +145,18 @@ Frontend will run at `http://localhost:3000` and backend at `http://localhost:50
 
 ---
 
+## 📜 License
+
+This project is licensed under the MIT License.
+
+---
+
 ## 📧 Contact
 
 **Author:** Kajol Singh
 GitHub: [kajolsinghme](https://github.com/kajolsinghme)
+
+```
+
+---
+
