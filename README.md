@@ -143,7 +143,5 @@ Frontend will run at `http://localhost:5173` and backend at `http://localhost:50
 **Author:** Kajol Singh
 **GitHub:** [kajolsinghme](https://github.com/kajolsinghme)
 
-```
-
 ---
 
